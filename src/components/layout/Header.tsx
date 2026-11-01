@@ -16,7 +16,7 @@ export const Header: React.FC<HeaderProps> = ({ activeModule, onSelectModule }) 
 
   const navItems: { id: NavModule; label: string; badge?: string }[] = [
     { id: 'dashboard', label: 'Studio Overview' },
-    { id: 'paging', label: 'Paging Lab', badge: 'v0.2.0' },
+    { id: 'paging', label: 'Paging Lab', badge: 'Live' },
     { id: 'segmentation', label: 'Segmentation', badge: 'v0.3.0' },
     { id: 'virtual-memory', label: 'Virtual Memory', badge: 'v0.4.0' },
     { id: 'replacement', label: 'Page Replacement', badge: 'v0.5.0' },

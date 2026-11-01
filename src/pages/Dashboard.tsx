@@ -28,7 +28,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       icon: Layers,
       color: 'var(--color-accent-primary)',
       topics: ['Logical to Physical Mapping', 'Page Table Entries', 'Frame Allocation Matrix', 'Internal Fragmentation'],
-      status: 'Up Next'
+      status: 'Live Simulator'
     },
     {
       id: 'segmentation' as NavModule,
@@ -174,7 +174,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             </p>
           </div>
           <span className="text-xs font-mono text-[var(--color-text-subtle)] bg-[var(--color-bg-surface-elevated)] px-2.5 py-1 rounded-md border border-[var(--color-border-subtle)]">
-            v0.1.0 Foundation Active
+            v0.2.0 Active
           </span>
         </div>
 
@@ -194,9 +194,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                     >
                       <Icon className="w-5 h-5" style={{ color: mod.color }} />
                     </div>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-[var(--color-bg-surface-elevated)] text-[var(--color-text-muted)] border border-[var(--color-border-subtle)]">
-                      {mod.version}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      {mod.status === 'Live Simulator' && (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                          Live Lab
+                        </span>
+                      )}
+                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-[var(--color-bg-surface-elevated)] text-[var(--color-text-muted)] border border-[var(--color-border-subtle)]">
+                        {mod.version}
+                      </span>
+                    </div>
                   </div>
 
                   <h3 className="font-bold text-base text-[var(--color-text-main)] group-hover:text-[var(--color-accent-primary)] transition">
