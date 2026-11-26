@@ -58,7 +58,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       icon: RefreshCw,
       color: 'var(--color-accent-warning)',
       topics: ['FIFO Queue Replacement', 'LRU Timestamp/Stack', 'Hit & Fault Ratios', 'Belady’s Anomaly Analysis'],
-      status: 'Planned'
+      status: 'Live Simulator'
     },
     {
       id: 'allocation' as NavModule,

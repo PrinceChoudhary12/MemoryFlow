@@ -1,7 +1,7 @@
 # MemoryFlow — Master Project Status & Tracking
 
 **Repository:** [PrinceChoudhary12/MemoryFlow](https://github.com/PrinceChoudhary12/MemoryFlow)  
-**Current Active Version:** `v0.4.0`  
+**Current Active Version:** `v0.5.0`  
 **Current Branch:** `main`  
 **Target Release:** `v1.0.0 Production Release`  
 **Last Updated:** November 2026
@@ -16,7 +16,7 @@
 | **v0.2.0** | Paging Simulator & Page Table Inspector | `COMPLETED` | `v0.2.0` | Pure TS core, frame matrix, bit splitter, reversible history |
 | **v0.3.0** | Segmentation Simulator & Memory Protection | `COMPLETED` | `v0.3.0` | Base/Limit registers, SegFault traps, external fragmentation |
 | **v0.4.0** | Virtual Memory & Demand Paging Lab | `COMPLETED` | `v0.4.0` | Demand paging, swap disk, page fault interrupt cycle, EAT |
-| **v0.5.0** | FIFO & LRU Page Replacement Studio | `PENDING` | `v0.5.0` | Algorithmic comparison, Belady's anomaly, hit/fault ribbons |
+| **v0.5.0** | FIFO & LRU Page Replacement Studio | `COMPLETED` | `v0.5.0` | Algorithmic comparison, Belady's anomaly, hit/fault ribbons |
 | **v0.6.0** | Dynamic Memory Allocation Studio | `PENDING` | `v0.6.0` | First/Best/Worst Fit, hole coalescing, partition splitting |
 | **v0.7.0** | Analytics, Benchmark & Export | `PENDING` | `v0.7.0` | Recharts comparative telemetry, JSON/CSV/PDF exports |
 | **v0.8.0** | UI/UX Refinement & Polish | `PENDING` | `v0.8.0` | Keyboard shortcuts, mobile navigation, ARIA accessibility |
@@ -56,16 +56,24 @@
 - Demand Paging Console (`VirtualMemoryInputCard.tsx`) with Read/Write toggles and 4 educational presets.
 - 100% reversible deep snapshot history.
 
+### v0.5.0 — FIFO & LRU Page Replacement Studio
+- Pure TypeScript replacement algorithms (`src/core/replacement/`) completely decoupled from React.
+- Dual execution engine (`ReplacementEngine`) advancing FIFO and LRU concurrently on identical reference sequences.
+- Silberschatz textbook benchmark verified: 20 accesses with 3 frames yields FIFO = 15 faults (25% hit ratio) vs LRU = 12 faults (40% hit ratio).
+- Mathematical Belady's Anomaly detector (`beladyDetector.ts`) identifying anomalous frame counts where increasing frames yields more faults under FIFO (e.g., 3 frames = 9 faults vs 4 frames = 10 faults).
+- Interactive visual studio (`ReplacementPage.tsx`) featuring reference stream ribbon, side-by-side frame matrices, telemetry leader delta, and Belady comparison bar charts.
+- 100% reversible deep snapshot history (`stepForward`, `stepBackward`, `stepTo`, `reset`).
+
 ---
 
 ## 3. Active & Upcoming Milestones
 
-- **Active:** Ready to release `v0.4.0` upon user review.
-- **Next:** `v0.5.0` Page Replacement Studio (FIFO vs LRU side-by-side comparison, Belady's Anomaly).
+- **Active:** Ready to release `v0.5.0` upon user review.
+- **Next:** `v0.6.0` Dynamic Memory Allocation Studio (First-Fit, Best-Fit, Worst-Fit).
 
 ---
 
 ## 4. Test Results & Build Status
-- **Unit Tests:** 39 passed across 7 test suites (100% pass rate).
+- **Unit Tests:** 67 passed across 11 test suites (100% pass rate).
 - **TypeScript & Build:** Clean compilation, 0 errors (`tsc -b && vite build`).
 - **Dev Server:** Active at `http://localhost:5173/`.
