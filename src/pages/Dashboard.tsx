@@ -38,7 +38,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       icon: Split,
       color: 'var(--color-accent-secondary)',
       topics: ['Segment Table (Base/Limit)', 'Address Translation', 'Memory Protection Violation', 'External Fragmentation'],
-      status: 'Planned'
+      status: 'Live Simulator'
     },
     {
       id: 'virtual-memory' as NavModule,
@@ -174,7 +174,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             </p>
           </div>
           <span className="text-xs font-mono text-[var(--color-text-subtle)] bg-[var(--color-bg-surface-elevated)] px-2.5 py-1 rounded-md border border-[var(--color-border-subtle)]">
-            v0.2.0 Active
+            v0.3.0 Active
           </span>
         </div>
 
