@@ -18,7 +18,7 @@ export const Header: React.FC<HeaderProps> = ({ activeModule, onSelectModule }) 
     { id: 'dashboard', label: 'Studio Overview' },
     { id: 'paging', label: 'Paging Lab', badge: 'Live' },
     { id: 'segmentation', label: 'Segmentation', badge: 'Live' },
-    { id: 'virtual-memory', label: 'Virtual Memory', badge: 'v0.4.0' },
+    { id: 'virtual-memory', label: 'Virtual Memory', badge: 'Live' },
     { id: 'replacement', label: 'Page Replacement', badge: 'v0.5.0' },
     { id: 'allocation', label: 'Dynamic Allocation', badge: 'v0.6.0' },
   ];
@@ -60,7 +60,7 @@ export const Header: React.FC<HeaderProps> = ({ activeModule, onSelectModule }) 
                 Memory<span className="text-[var(--color-accent-primary)]">Flow</span>
               </span>
               <span className="px-1.5 py-0.5 text-[10px] font-mono font-semibold rounded bg-[var(--color-bg-muted)] text-[var(--color-accent-primary)] border border-[var(--color-border-medium)]">
-                v0.3.0
+                v0.4.0
               </span>
             </div>
             <p className="text-[11px] text-[var(--color-text-subtle)] hidden sm:block">

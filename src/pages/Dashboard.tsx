@@ -48,7 +48,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       icon: HardDrive,
       color: 'var(--color-accent-tertiary)',
       topics: ['Demand Paging', 'Page Fault Interrupt Handler', 'Valid/Invalid Bit', 'Secondary Storage Swap'],
-      status: 'Planned'
+      status: 'Live Simulator'
     },
     {
       id: 'replacement' as NavModule,
@@ -174,7 +174,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             </p>
           </div>
           <span className="text-xs font-mono text-[var(--color-text-subtle)] bg-[var(--color-bg-surface-elevated)] px-2.5 py-1 rounded-md border border-[var(--color-border-subtle)]">
-            v0.3.0 Active
+            v0.4.0 Active
           </span>
         </div>
 
