@@ -7,6 +7,7 @@ import { SegmentInputCard } from '../components/segmentation/SegmentInputCard';
 import { SegmentTableView } from '../components/segmentation/SegmentTableView';
 import { PhysicalMemoryMap } from '../components/segmentation/PhysicalMemoryMap';
 import { SegmentationTelemetry } from '../components/segmentation/SegmentationTelemetry';
+import { SimulationAnnouncement } from '../components/common/SimulationAnnouncement';
 import type { SegmentationConfig, Segment } from '../core/segmentation/types';
 import { useAnalytics } from '../context/AnalyticsContext';
 
@@ -143,6 +144,11 @@ export const SegmentationPage: React.FC<SegmentationPageProps> = ({ onBack }) =>
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
+      <SimulationAnnouncement
+        message={currentStep
+          ? `Segmentation step ${currentStep.stepNumber}: ${currentStep.status} for ${currentStep.rawInput}.`
+          : ''}
+      />
       
       {/* Top Breadcrumb & Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -166,13 +172,13 @@ export const SegmentationPage: React.FC<SegmentationPageProps> = ({ onBack }) =>
       {/* Main Studio Card Header */}
       <div className="p-6 rounded-2xl glass-panel border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)]">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-4">
             <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-[var(--color-accent-secondary)]/15 shadow-lg text-[var(--color-accent-secondary)]">
               <Split className="w-6 h-6" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-bold text-[var(--color-text-main)]">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="min-w-0 text-2xl font-bold text-[var(--color-text-main)]">
                   Segmentation Simulator & Memory Protection Lab
                 </h1>
                 <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-[var(--color-bg-muted)] text-[var(--color-accent-secondary)] border border-[var(--color-border-medium)]">

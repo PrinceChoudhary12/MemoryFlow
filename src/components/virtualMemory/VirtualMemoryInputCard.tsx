@@ -62,6 +62,7 @@ export const VirtualMemoryInputCard: React.FC<VirtualMemoryInputCardProps> = ({
           <button
             type="button"
             onClick={() => onToggleMode(false)}
+            aria-pressed={!isStreamMode}
             className={`px-2.5 py-1 rounded-md transition ${
               !isStreamMode
                 ? 'bg-[var(--color-bg-muted)] text-[var(--color-accent-primary)] font-semibold'
@@ -73,6 +74,7 @@ export const VirtualMemoryInputCard: React.FC<VirtualMemoryInputCardProps> = ({
           <button
             type="button"
             onClick={() => onToggleMode(true)}
+            aria-pressed={isStreamMode}
             className={`px-2.5 py-1 rounded-md transition ${
               isStreamMode
                 ? 'bg-[var(--color-bg-muted)] text-[var(--color-accent-primary)] font-semibold'
@@ -98,15 +100,16 @@ export const VirtualMemoryInputCard: React.FC<VirtualMemoryInputCardProps> = ({
 
         <div className="grid grid-cols-2 gap-2 text-xs">
           <div>
-            <label className="block text-[10px] text-[var(--color-text-muted)] mb-1">
+            <label htmlFor="vm-virtual-space" className="block text-[10px] text-[var(--color-text-muted)] mb-1">
               Virtual Memory Space
             </label>
             <select
+              id="vm-virtual-space"
               value={config.virtualSpaceKb}
               onChange={(e) =>
                 onUpdateConfig({ ...config, virtualSpaceKb: Number(e.target.value) })
               }
-              className="w-full px-2 py-1.5 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-xs focus:outline-none focus:border-[var(--color-accent-primary)]"
+              className="w-full px-2 py-1.5 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-xs focus:border-[var(--color-accent-primary)]"
             >
               <option value={32}>32 KB (8 Pages)</option>
               <option value={64}>64 KB (16 Pages)</option>
@@ -115,15 +118,16 @@ export const VirtualMemoryInputCard: React.FC<VirtualMemoryInputCardProps> = ({
           </div>
 
           <div>
-            <label className="block text-[10px] text-[var(--color-text-muted)] mb-1">
+            <label htmlFor="vm-physical-ram" className="block text-[10px] text-[var(--color-text-muted)] mb-1">
               Physical RAM Capacity
             </label>
             <select
+              id="vm-physical-ram"
               value={config.ramSizeKb}
               onChange={(e) =>
                 onUpdateConfig({ ...config, ramSizeKb: Number(e.target.value) })
               }
-              className="w-full px-2 py-1.5 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-xs focus:outline-none focus:border-[var(--color-accent-primary)]"
+              className="w-full px-2 py-1.5 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-xs focus:border-[var(--color-accent-primary)]"
             >
               <option value={8}>8 KB (2 Frames)</option>
               <option value={16}>16 KB (4 Frames)</option>
@@ -137,7 +141,7 @@ export const VirtualMemoryInputCard: React.FC<VirtualMemoryInputCardProps> = ({
       {!isStreamMode ? (
         <form onSubmit={handleSingleSubmit} className="space-y-3">
           <div className="flex items-center justify-between">
-            <label className="block text-xs font-medium text-[var(--color-text-main)]">
+            <label htmlFor="vm-address" className="block text-xs font-medium text-[var(--color-text-main)]">
               Logical Address & Access Type:
             </label>
             
@@ -146,6 +150,7 @@ export const VirtualMemoryInputCard: React.FC<VirtualMemoryInputCardProps> = ({
               <button
                 type="button"
                 onClick={() => setAccessType('READ')}
+                aria-pressed={accessType === 'READ'}
                 className={`px-2 py-0.5 rounded transition flex items-center gap-1 ${
                   accessType === 'READ'
                     ? 'bg-cyan-500/20 text-cyan-400 font-bold'
@@ -158,6 +163,7 @@ export const VirtualMemoryInputCard: React.FC<VirtualMemoryInputCardProps> = ({
               <button
                 type="button"
                 onClick={() => setAccessType('WRITE')}
+                aria-pressed={accessType === 'WRITE'}
                 className={`px-2 py-0.5 rounded transition flex items-center gap-1 ${
                   accessType === 'WRITE'
                     ? 'bg-amber-500/20 text-amber-400 font-bold'
@@ -171,18 +177,21 @@ export const VirtualMemoryInputCard: React.FC<VirtualMemoryInputCardProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col items-stretch gap-2 min-[375px]:flex-row min-[375px]:items-center">
             <input
+              id="vm-address"
               type="text"
               value={singleInput}
               onChange={(e) => setSingleInput(e.target.value)}
+              aria-invalid={validationError ? true : undefined}
+              aria-describedby={validationError ? 'vm-address-error' : undefined}
               placeholder="e.g. 0x1000 or 4096"
-              className="flex-1 px-3 py-2 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-sm focus:outline-none focus:border-[var(--color-accent-primary)]"
+              className="min-w-0 flex-1 px-3 py-2 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-sm focus:border-[var(--color-accent-primary)]"
             />
 
             <button
               type="submit"
-              className="flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium text-xs shadow-md transition"
+              className="flex w-full items-center justify-center gap-1.5 px-4 py-2 rounded-lg font-medium text-xs shadow-md transition min-[375px]:w-auto"
               style={{
                 backgroundColor: 'var(--color-accent-primary)',
                 color: 'var(--color-accent-contrast)',
@@ -194,7 +203,7 @@ export const VirtualMemoryInputCard: React.FC<VirtualMemoryInputCardProps> = ({
           </div>
 
           {validationError && (
-            <div className="flex items-center gap-1.5 text-xs text-[var(--color-accent-danger)]">
+            <div id="vm-address-error" role="alert" className="flex items-center gap-1.5 text-xs text-[var(--color-accent-danger)]">
               <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
               <span>{validationError}</span>
             </div>
@@ -208,15 +217,16 @@ export const VirtualMemoryInputCard: React.FC<VirtualMemoryInputCardProps> = ({
       ) : (
         /* Mode B: Sequence Reference Stream */
         <form onSubmit={handleStreamSubmit} className="space-y-3">
-          <label className="block text-xs font-medium text-[var(--color-text-main)]">
+          <label htmlFor="vm-stream" className="block text-xs font-medium text-[var(--color-text-main)]">
             Reference Sequence (Comma-Separated with :R or :W):
           </label>
           <textarea
+            id="vm-stream"
             value={streamInput}
             onChange={(e) => setStreamInput(e.target.value)}
             rows={3}
             placeholder="e.g. 0x1000:R, 0x2000:W, 0x1050:R, 0x3000:W, 0x4000:R"
-            className="w-full px-3 py-2 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-xs focus:outline-none focus:border-[var(--color-accent-primary)]"
+            className="w-full px-3 py-2 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-xs focus:border-[var(--color-accent-primary)]"
           />
           <button
             type="submit"

@@ -21,5 +21,6 @@ describe('printable analytics charts', () => {
   it('keeps the unused print-page area white', () => {
     const printStyles = readFileSync(new URL('../pages/AnalyticsPage.css', import.meta.url), 'utf8');
     expect(printStyles).toMatch(/html,\s*body\s*\{\s*background:\s*#ffffff\s*!important;\s*\}/);
+    expect(printStyles).toContain('filter: grayscale(1)');
   });
 });

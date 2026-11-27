@@ -40,7 +40,7 @@ export const SideBySideFrameMatrix: React.FC<SideBySideFrameMatrixProps> = ({
         </div>
 
         {/* Horizontal scrollable page chips */}
-        <div className="overflow-x-auto pb-2 scrollbar-thin">
+        <div className="overflow-x-auto pb-2 scrollbar-thin" role="region" aria-label="Page reference stream" tabIndex={0}>
           <div className="flex items-center gap-2 min-w-max">
             {referenceString.map((page, index) => {
               const isCurrent = index === currentStepIndex;
@@ -50,6 +50,9 @@ export const SideBySideFrameMatrix: React.FC<SideBySideFrameMatrixProps> = ({
               return (
                 <button
                   key={index}
+                  type="button"
+                  aria-current={isCurrent ? 'step' : undefined}
+                  aria-label={`Step ${index + 1}, page ${page}${stepData ? `, FIFO ${stepData.fifo.status}, LRU ${stepData.lru.status}` : ', not yet processed'}`}
                   onClick={() => onSelectStep?.(index)}
                   className={`flex flex-col items-center justify-center p-2 rounded-xl min-w-[52px] border transition-all ${
                     isCurrent
@@ -210,7 +213,7 @@ export const SideBySideFrameMatrix: React.FC<SideBySideFrameMatrixProps> = ({
               <span>Step Execution Matrix (FIFO):</span>
             </div>
 
-            <div className="overflow-x-auto max-h-56 scrollbar-thin rounded-xl border border-[var(--color-border-subtle)]">
+            <div className="overflow-x-auto max-h-56 scrollbar-thin rounded-xl border border-[var(--color-border-subtle)]" role="region" aria-label="FIFO execution matrix" tabIndex={0}>
               <table className="w-full text-xs text-left border-collapse font-mono">
                 <thead>
                   <tr className="bg-[var(--color-bg-surface-elevated)] text-[var(--color-text-subtle)] border-b border-[var(--color-border-subtle)]">
@@ -383,7 +386,7 @@ export const SideBySideFrameMatrix: React.FC<SideBySideFrameMatrixProps> = ({
               <span>Step Execution Matrix (LRU):</span>
             </div>
 
-            <div className="overflow-x-auto max-h-56 scrollbar-thin rounded-xl border border-[var(--color-border-subtle)]">
+            <div className="overflow-x-auto max-h-56 scrollbar-thin rounded-xl border border-[var(--color-border-subtle)]" role="region" aria-label="LRU execution matrix" tabIndex={0}>
               <table className="w-full text-xs text-left border-collapse font-mono">
                 <thead>
                   <tr className="bg-[var(--color-bg-surface-elevated)] text-[var(--color-text-subtle)] border-b border-[var(--color-border-subtle)]">

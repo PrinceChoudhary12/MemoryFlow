@@ -114,6 +114,7 @@ export const SegmentInputCard: React.FC<SegmentInputCardProps> = ({
           <button
             type="button"
             onClick={() => onToggleMode(false)}
+            aria-pressed={!isStreamMode}
             className={`px-2.5 py-1 rounded-md transition ${
               !isStreamMode
                 ? 'bg-[var(--color-bg-muted)] text-[var(--color-accent-primary)] font-semibold'
@@ -125,6 +126,7 @@ export const SegmentInputCard: React.FC<SegmentInputCardProps> = ({
           <button
             type="button"
             onClick={() => onToggleMode(true)}
+            aria-pressed={isStreamMode}
             className={`px-2.5 py-1 rounded-md transition ${
               isStreamMode
                 ? 'bg-[var(--color-bg-muted)] text-[var(--color-accent-primary)] font-semibold'
@@ -150,15 +152,16 @@ export const SegmentInputCard: React.FC<SegmentInputCardProps> = ({
 
         <div className="grid grid-cols-2 gap-2 text-xs">
           <div>
-            <label className="block text-[10px] text-[var(--color-text-muted)] mb-1">
+            <label htmlFor="segmentation-logical-space" className="block text-[10px] text-[var(--color-text-muted)] mb-1">
               Logical Space
             </label>
             <select
+              id="segmentation-logical-space"
               value={config.logicalSpaceKb}
               onChange={(e) =>
                 onUpdateConfig({ ...config, logicalSpaceKb: Number(e.target.value) })
               }
-              className="w-full px-2 py-1.5 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-xs focus:outline-none focus:border-[var(--color-accent-primary)]"
+              className="w-full px-2 py-1.5 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-xs focus:border-[var(--color-accent-primary)]"
             >
               <option value={32}>32 KB</option>
               <option value={64}>64 KB (16-bit)</option>
@@ -167,15 +170,16 @@ export const SegmentInputCard: React.FC<SegmentInputCardProps> = ({
           </div>
 
           <div>
-            <label className="block text-[10px] text-[var(--color-text-muted)] mb-1">
+            <label htmlFor="segmentation-physical-ram" className="block text-[10px] text-[var(--color-text-muted)] mb-1">
               Physical RAM
             </label>
             <select
+              id="segmentation-physical-ram"
               value={config.ramSizeKb}
               onChange={(e) =>
                 onUpdateConfig({ ...config, ramSizeKb: Number(e.target.value) })
               }
-              className="w-full px-2 py-1.5 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-xs focus:outline-none focus:border-[var(--color-accent-primary)]"
+              className="w-full px-2 py-1.5 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-xs focus:border-[var(--color-accent-primary)]"
             >
               <option value={32}>32 KB (32768 B)</option>
               <option value={64}>64 KB (65536 B)</option>
@@ -187,22 +191,25 @@ export const SegmentInputCard: React.FC<SegmentInputCardProps> = ({
       {/* Mode A: Single Address Translation */}
       {!isStreamMode ? (
         <form onSubmit={handleSingleSubmit} className="space-y-3">
-          <label className="block text-xs font-medium text-[var(--color-text-main)]">
+          <label htmlFor="segmentation-address" className="block text-xs font-medium text-[var(--color-text-main)]">
             Logical Address &lt;Segment, Offset&gt;:
           </label>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col items-stretch gap-2 min-[375px]:flex-row min-[375px]:items-center">
             <input
+              id="segmentation-address"
               type="text"
               value={singleInput}
               onChange={(e) => setSingleInput(e.target.value)}
+              aria-invalid={validationError ? true : undefined}
+              aria-describedby={validationError ? 'segmentation-address-error' : undefined}
               placeholder="e.g. (0, 500) or (1, 2048)"
-              className="flex-1 px-3 py-2 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-sm focus:outline-none focus:border-[var(--color-accent-primary)]"
+              className="min-w-0 flex-1 px-3 py-2 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-sm focus:border-[var(--color-accent-primary)]"
             />
 
             <button
               type="submit"
-              className="flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium text-xs shadow-md transition"
+              className="flex w-full items-center justify-center gap-1.5 px-4 py-2 rounded-lg font-medium text-xs shadow-md transition min-[375px]:w-auto"
               style={{
                 backgroundColor: 'var(--color-accent-primary)',
                 color: 'var(--color-accent-contrast)',
@@ -214,7 +221,7 @@ export const SegmentInputCard: React.FC<SegmentInputCardProps> = ({
           </div>
 
           {validationError && (
-            <div className="flex items-center gap-1.5 text-xs text-[var(--color-accent-danger)]">
+            <div id="segmentation-address-error" role="alert" className="flex items-center gap-1.5 text-xs text-[var(--color-accent-danger)]">
               <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
               <span>{validationError}</span>
             </div>
@@ -228,15 +235,16 @@ export const SegmentInputCard: React.FC<SegmentInputCardProps> = ({
       ) : (
         /* Mode B: Reference Stream Sequence */
         <form onSubmit={handleStreamSubmit} className="space-y-3">
-          <label className="block text-xs font-medium text-[var(--color-text-main)]">
+          <label htmlFor="segmentation-stream" className="block text-xs font-medium text-[var(--color-text-main)]">
             Reference Sequence &lt;s, d&gt; (Comma-Separated):
           </label>
           <textarea
+            id="segmentation-stream"
             value={streamInput}
             onChange={(e) => setStreamInput(e.target.value)}
             rows={3}
             placeholder="e.g. (0, 500), (0, 4096), (1, 200), (2, 2500)"
-            className="w-full px-3 py-2 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-xs focus:outline-none focus:border-[var(--color-accent-primary)]"
+            className="w-full px-3 py-2 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-xs focus:border-[var(--color-accent-primary)]"
           />
           <button
             type="submit"
@@ -264,7 +272,9 @@ export const SegmentInputCard: React.FC<SegmentInputCardProps> = ({
             <div className="text-xs font-semibold text-[var(--color-text-main)]">
               New Segment Definition
             </div>
+            <label htmlFor="new-segment-name" className="sr-only">Segment name</label>
             <input
+              id="new-segment-name"
               type="text"
               placeholder="Segment Name (e.g. Shared Lib)"
               value={newSegName}
@@ -273,28 +283,34 @@ export const SegmentInputCard: React.FC<SegmentInputCardProps> = ({
             />
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="text-[10px] text-[var(--color-text-muted)]">Base Address</label>
+                <label htmlFor="new-segment-base" className="text-[10px] text-[var(--color-text-muted)]">Base Address</label>
                 <input
+                  id="new-segment-base"
                   type="number"
                   placeholder="26000"
                   value={newSegBase}
                   onChange={(e) => setNewSegBase(e.target.value)}
+                  aria-invalid={addError ? true : undefined}
+                  aria-describedby={addError ? 'segment-add-error' : undefined}
                   className="w-full px-2.5 py-1 rounded-md border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-xs font-mono"
                 />
               </div>
               <div>
-                <label className="text-[10px] text-[var(--color-text-muted)]">Limit / Size</label>
+                <label htmlFor="new-segment-limit" className="text-[10px] text-[var(--color-text-muted)]">Limit / Size</label>
                 <input
+                  id="new-segment-limit"
                   type="number"
                   placeholder="2000"
                   value={newSegLimit}
                   onChange={(e) => setNewSegLimit(e.target.value)}
+                  aria-invalid={addError ? true : undefined}
+                  aria-describedby={addError ? 'segment-add-error' : undefined}
                   className="w-full px-2.5 py-1 rounded-md border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-xs font-mono"
                 />
               </div>
             </div>
             {addError && (
-              <div className="flex items-center gap-1.5 p-2 rounded-lg bg-rose-500/10 border border-rose-500/30 text-xs text-rose-400">
+              <div id="segment-add-error" role="alert" className="flex items-center gap-1.5 p-2 rounded-lg bg-rose-500/10 border border-rose-500/30 text-xs text-rose-400">
                 <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
                 <span>{addError}</span>
               </div>

@@ -58,7 +58,9 @@ export const ReplacementControls: React.FC<ReplacementControlsProps> = ({
         <div className="flex items-center gap-1.5">
           {/* Reset */}
           <button
+            type="button"
             onClick={onReset}
+            aria-label="Reset simulation"
             className="p-2 rounded-xl bg-[var(--color-bg-surface-elevated)] border border-[var(--color-border-subtle)] text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] hover:bg-[var(--color-bg-muted)] transition-colors"
             title="Reset simulation to initial state"
           >
@@ -67,7 +69,9 @@ export const ReplacementControls: React.FC<ReplacementControlsProps> = ({
 
           {/* Step Backward */}
           <button
+            type="button"
             onClick={onStepBackward}
+            aria-label="Step backward"
             disabled={!canStepBackward || isPlaying}
             className="p-2 rounded-xl bg-[var(--color-bg-surface-elevated)] border border-[var(--color-border-subtle)] text-[var(--color-text-main)] hover:bg-[var(--color-bg-muted)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             title="Step backward (rewind one page reference)"
@@ -77,7 +81,9 @@ export const ReplacementControls: React.FC<ReplacementControlsProps> = ({
 
           {/* Play / Pause */}
           <button
+            type="button"
             onClick={onTogglePlay}
+            aria-label={isPlaying ? 'Pause simulation' : 'Play simulation'}
             disabled={!canStepForward && !isPlaying}
             className={`px-4 py-2 rounded-xl flex items-center gap-1.5 text-xs font-bold transition-all shadow-md ${
               isPlaying
@@ -101,7 +107,9 @@ export const ReplacementControls: React.FC<ReplacementControlsProps> = ({
 
           {/* Step Forward */}
           <button
+            type="button"
             onClick={onStepForward}
+            aria-label="Step forward"
             disabled={!canStepForward || isPlaying}
             className="p-2 rounded-xl bg-[var(--color-bg-surface-elevated)] border border-[var(--color-border-subtle)] text-[var(--color-text-main)] hover:bg-[var(--color-bg-muted)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             title="Step forward (evaluate next page reference)"
@@ -111,7 +119,9 @@ export const ReplacementControls: React.FC<ReplacementControlsProps> = ({
 
           {/* Jump to End */}
           <button
+            type="button"
             onClick={onJumpToEnd}
+            aria-label="Run to end"
             disabled={!canStepForward || isPlaying}
             className="p-2 rounded-xl bg-[var(--color-bg-surface-elevated)] border border-[var(--color-border-subtle)] text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] hover:bg-[var(--color-bg-muted)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             title="Fast forward to end of sequence"
@@ -128,6 +138,8 @@ export const ReplacementControls: React.FC<ReplacementControlsProps> = ({
             return (
               <button
                 key={speed}
+                type="button"
+                aria-pressed={isSelected}
                 onClick={() => onSpeedChange(speed)}
                 className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold transition-all ${
                   isSelected

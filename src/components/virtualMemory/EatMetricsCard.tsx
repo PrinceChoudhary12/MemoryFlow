@@ -89,13 +89,14 @@ export const EatMetricsCard: React.FC<EatMetricsCardProps> = ({
         {/* RAM Access Time Slider */}
         <div>
           <div className="flex items-center justify-between text-[11px] mb-1 font-mono">
-            <span className="text-[var(--color-text-muted)] flex items-center gap-1">
+            <label htmlFor="vm-ram-access-time" className="text-[var(--color-text-muted)] flex items-center gap-1">
               <Zap className="w-3 h-3 text-cyan-400" />
               RAM Access Time:
-            </span>
+            </label>
             <span className="font-bold text-[var(--color-text-main)]">{ramTimeNs} ns</span>
           </div>
           <input
+            id="vm-ram-access-time"
             type="range"
             min={50}
             max={300}
@@ -109,13 +110,14 @@ export const EatMetricsCard: React.FC<EatMetricsCardProps> = ({
         {/* Disk Service Time Slider */}
         <div>
           <div className="flex items-center justify-between text-[11px] mb-1 font-mono">
-            <span className="text-[var(--color-text-muted)] flex items-center gap-1">
+            <label htmlFor="vm-fault-service-time" className="text-[var(--color-text-muted)] flex items-center gap-1">
               <AlertTriangle className="w-3 h-3 text-amber-400" />
               Page Fault Service Time:
-            </span>
+            </label>
             <span className="font-bold text-[var(--color-text-main)]">{faultTimeMs} ms</span>
           </div>
           <input
+            id="vm-fault-service-time"
             type="range"
             min={1}
             max={20}

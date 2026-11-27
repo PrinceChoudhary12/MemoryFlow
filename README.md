@@ -7,6 +7,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-7.0-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-4.3-38bdf8?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![Vitest](https://img.shields.io/badge/Vitest-5.0-6e9f18?logo=vitest&logoColor=white)](https://vitest.dev/)
+[![Playwright](https://img.shields.io/badge/Playwright-browser%20QA-2ead33?logo=playwright&logoColor=white)](https://playwright.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
@@ -27,6 +28,7 @@
 | **Page Replacement Studio** | `v0.5.0` | Step-by-step benchmark of **FIFO** vs **LRU**, hit/miss counters, and Belady’s Anomaly demonstration. |
 | **Dynamic Memory Allocation**| `v0.6.0` | **First Fit**, **Best Fit**, and **Worst Fit** strategies with free hole coalescing visualization. |
 | **Analytics & Comparison** | `v0.7.0` | Session-local analytics from all five labs, reproducible engine benchmarks, compatible comparisons, Recharts charts, JSON/CSV exports, and print-ready reports. |
+| **UI/UX & Accessibility** | `v0.8.0` | Responsive layouts, labeled and validated forms, keyboard states and focus, simulation announcements, theme contrast checks, and grayscale print charts. |
 
 ---
 
@@ -47,7 +49,7 @@ MemoryFlow features 4 distinct visual themes with zero-flicker CSS variable swit
 - **Styling**: Tailwind CSS v4 + Custom Glassmorphism UI tokens
 - **Icons**: Lucide React
 - **Visual Analytics**: Recharts
-- **Testing Engine**: Vitest unit testing suite
+- **Testing**: Vitest unit tests and Playwright browser QA
 
 ---
 
@@ -75,7 +77,13 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 npm run test
 ```
 
-### 5. Build for production
+### 5. Run browser QA
+```bash
+npm run test:e2e
+```
+The Playwright suite starts an isolated local Vite server and checks all seven views at 320, 390, 768, 1024, and 1440px, plus accessibility, themes, print media, and performance measurements.
+
+### 6. Build for production
 ```bash
 npm run build
 ```

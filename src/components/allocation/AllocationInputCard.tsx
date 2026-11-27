@@ -131,7 +131,7 @@ export const AllocationInputCard: React.FC<AllocationInputCardProps> = ({
         </div>
 
         {/* Min Split Threshold Selector */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5" role="group" aria-label="Minimum leftover hole threshold">
           <span className="text-[10px] font-semibold text-[var(--color-text-subtle)] hidden sm:inline">
             Min Split:
           </span>
@@ -139,6 +139,7 @@ export const AllocationInputCard: React.FC<AllocationInputCardProps> = ({
             <button
               key={t}
               type="button"
+              aria-pressed={thresholdKb === t}
               disabled={disabled}
               onClick={() => handleThresholdChange(t)}
               className={`px-2 py-1 rounded-lg text-[10px] font-mono font-bold transition-all ${
@@ -167,6 +168,7 @@ export const AllocationInputCard: React.FC<AllocationInputCardProps> = ({
               <button
                 key={preset.id}
                 type="button"
+                aria-pressed={isActive}
                 disabled={disabled}
                 onClick={() => onSelectPreset(preset.id)}
                 className={`text-left px-2.5 py-1.5 rounded-lg border text-xs transition-all ${
@@ -188,7 +190,7 @@ export const AllocationInputCard: React.FC<AllocationInputCardProps> = ({
       {/* Operation Stream Editor */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
-          <label className="text-xs font-semibold text-[var(--color-text-muted)]">
+          <label htmlFor="allocation-operation-stream" className="text-xs font-semibold text-[var(--color-text-muted)]">
             Operation Stream:
           </label>
           <span className="text-[10px] font-mono text-[var(--color-text-subtle)]">
@@ -197,16 +199,19 @@ export const AllocationInputCard: React.FC<AllocationInputCardProps> = ({
         </div>
 
         <textarea
+          id="allocation-operation-stream"
           rows={2}
           value={streamText}
           disabled={disabled}
           onChange={(e) => handleStreamChange(e.target.value)}
+          aria-invalid={!validation.valid}
+          aria-describedby={!validation.valid ? 'allocation-stream-error' : undefined}
           placeholder="e.g., A P1 212, A P2 417, D P1"
-          className="w-full font-mono text-xs px-3 py-2 rounded-xl border border-[var(--color-border-medium)] bg-[var(--color-bg-surface-elevated)] text-[var(--color-text-main)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-danger)] resize-none"
+          className="w-full font-mono text-xs px-3 py-2 rounded-xl border border-[var(--color-border-medium)] bg-[var(--color-bg-surface-elevated)] text-[var(--color-text-main)] focus:ring-2 focus:ring-[var(--color-accent-danger)] resize-none"
         />
 
         {validation.valid ? (
-          <div className="flex items-center justify-between text-[11px] text-emerald-400">
+          <div role="status" aria-live="polite" className="flex items-center justify-between text-[11px] text-emerald-400">
             <span className="flex items-center gap-1">
               <CheckCircle2 className="w-3.5 h-3.5" />
               Valid stream: {validation.operations.length} operations
@@ -221,7 +226,7 @@ export const AllocationInputCard: React.FC<AllocationInputCardProps> = ({
             </button>
           </div>
         ) : (
-          <div className="flex items-center gap-1 text-[11px] text-rose-400">
+          <div id="allocation-stream-error" role="status" aria-live="polite" className="flex items-center gap-1 text-[11px] text-rose-400">
             <AlertCircle className="w-3.5 h-3.5 shrink-0" />
             <span className="truncate">{validation.error}</span>
           </div>
@@ -242,6 +247,8 @@ export const AllocationInputCard: React.FC<AllocationInputCardProps> = ({
             placeholder="PID"
             className="w-20 font-mono text-xs px-2.5 py-1.5 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-surface-elevated)] text-[var(--color-text-main)]"
             aria-label="Process ID"
+            aria-invalid={adHocError ? true : undefined}
+            aria-describedby={adHocError ? 'allocation-operation-error' : undefined}
           />
           <input
             type="number"
@@ -256,6 +263,8 @@ export const AllocationInputCard: React.FC<AllocationInputCardProps> = ({
             placeholder="Size KB"
             className="w-24 font-mono text-xs px-2.5 py-1.5 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-surface-elevated)] text-[var(--color-text-main)]"
             aria-label="Process Size in KB"
+            aria-invalid={adHocError ? true : undefined}
+            aria-describedby={adHocError ? 'allocation-operation-error' : undefined}
           />
           <button
             type="submit"
@@ -268,7 +277,7 @@ export const AllocationInputCard: React.FC<AllocationInputCardProps> = ({
         </form>
 
         {adHocError && (
-          <div className="flex items-center gap-1 text-[11px] text-rose-400">
+          <div id="allocation-operation-error" role="alert" className="flex items-center gap-1 text-[11px] text-rose-400">
             <AlertCircle className="w-3.5 h-3.5 shrink-0" />
             <span>{adHocError}</span>
           </div>

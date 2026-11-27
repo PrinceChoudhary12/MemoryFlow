@@ -9,6 +9,7 @@ import { ReplacementControls } from '../components/replacement/ReplacementContro
 import { SideBySideFrameMatrix } from '../components/replacement/SideBySideFrameMatrix';
 import { BeladyAnomalyCard } from '../components/replacement/BeladyAnomalyCard';
 import { ReplacementTelemetry } from '../components/replacement/ReplacementTelemetry';
+import { SimulationAnnouncement } from '../components/common/SimulationAnnouncement';
 import { useAnalytics } from '../context/AnalyticsContext';
 
 interface ReplacementPageProps {
@@ -154,6 +155,11 @@ export const ReplacementPage: React.FC<ReplacementPageProps> = ({ onBack }) => {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300 pb-16">
+      <SimulationAnnouncement
+        message={currentStep
+          ? `Replacement step ${currentStep.stepIndex + 1} of ${referenceString.length}: page ${currentStep.pageNumber}, FIFO ${currentStep.fifo.status}, LRU ${currentStep.lru.status}.`
+          : ''}
+      />
       {/* 1. Header Banner */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-2xl glass-panel border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] shadow-lg">
         <div className="flex items-center gap-3">

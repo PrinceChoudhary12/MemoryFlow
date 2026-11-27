@@ -10,6 +10,7 @@ import { AllocationControls } from '../components/allocation/AllocationControls'
 import { PartitionMemoryMap } from '../components/allocation/PartitionMemoryMap';
 import { AllocationComparisonBoard } from '../components/allocation/AllocationComparisonBoard';
 import { AllocationTelemetry } from '../components/allocation/AllocationTelemetry';
+import { SimulationAnnouncement } from '../components/common/SimulationAnnouncement';
 import { useAnalytics } from '../context/AnalyticsContext';
 
 interface AllocationPageProps {
@@ -141,6 +142,11 @@ export const AllocationPage: React.FC<AllocationPageProps> = ({ onBack }) => {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300 pb-16">
+      <SimulationAnnouncement
+        message={currentTriple
+          ? `Allocation operation ${currentTriple.stepIndex + 1} of ${operations.length}: ${currentTriple.operation.type.toLowerCase()} ${currentTriple.operation.processId}. First-Fit ${currentTriple.firstFit.success ? 'succeeded' : 'failed'}, Best-Fit ${currentTriple.bestFit.success ? 'succeeded' : 'failed'}, Worst-Fit ${currentTriple.worstFit.success ? 'succeeded' : 'failed'}.`
+          : ''}
+      />
       {/* Header Banner */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-2xl glass-panel border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] shadow-lg">
         <div className="flex items-center gap-3">

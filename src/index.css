@@ -34,6 +34,11 @@
   --color-accent-tertiary: #10b981;     /* Emerald */
   --color-accent-warning: #f59e0b;      /* Amber */
   --color-accent-danger: #f87171;       /* Rose */
+  --color-status-success: #34d399;
+  --color-status-warning: #fbbf24;
+  --color-status-danger: #fb7185;
+  --color-status-info: #60a5fa;
+  --color-status-accent: #c084fc;
 
   --glass-bg: rgba(14, 19, 31, 0.75);
   --glass-border: rgba(51, 65, 85, 0.6);
@@ -63,6 +68,11 @@
   --color-accent-tertiary: #065f46;
   --color-accent-warning: #854d0e;
   --color-accent-danger: #b91c1c;
+  --color-status-success: #166534;
+  --color-status-warning: #854d0e;
+  --color-status-danger: #b91c1c;
+  --color-status-info: #1d4ed8;
+  --color-status-accent: #6d28d9;
 
   --glass-bg: rgba(255, 255, 255, 0.85);
   --glass-border: rgba(203, 213, 225, 0.7);
@@ -92,6 +102,11 @@
   --color-accent-tertiary: #10b981;
   --color-accent-warning: #f59e0b;
   --color-accent-danger: #fb7185;
+  --color-status-success: #4ade80;
+  --color-status-warning: #fbbf24;
+  --color-status-danger: #fb7185;
+  --color-status-info: #60a5fa;
+  --color-status-accent: #c084fc;
 
   --glass-bg: rgba(24, 25, 30, 0.8);
   --glass-border: rgba(58, 63, 78, 0.6);
@@ -121,6 +136,11 @@
   --color-accent-tertiary: #06b6d4;     /* Cyan */
   --color-accent-warning: #facc15;
   --color-accent-danger: #ff758f;
+  --color-status-success: #34d399;
+  --color-status-warning: #fde047;
+  --color-status-danger: #fb7185;
+  --color-status-info: #67e8f9;
+  --color-status-accent: #e879f9;
 
   --glass-bg: rgba(16, 20, 38, 0.8);
   --glass-border: rgba(55, 70, 119, 0.7);
@@ -148,6 +168,40 @@ body {
 :focus-visible {
   outline: 2px solid var(--color-accent-primary);
   outline-offset: 2px;
+}
+
+.text-emerald-400,
+.text-emerald-500,
+.text-green-400 {
+  color: var(--color-status-success);
+}
+
+.text-amber-300,
+.text-amber-400,
+.text-amber-500,
+.text-yellow-400 {
+  color: var(--color-status-warning);
+}
+
+.text-rose-300,
+.text-rose-400,
+.text-rose-500,
+.text-red-300,
+.text-red-400 {
+  color: var(--color-status-danger);
+}
+
+.text-blue-400,
+.text-blue-500,
+.text-cyan-300,
+.text-cyan-400 {
+  color: var(--color-status-info);
+}
+
+.text-purple-400,
+.text-purple-500,
+.text-violet-400 {
+  color: var(--color-status-accent);
 }
 
 .font-mono {

@@ -8,6 +8,7 @@ import { DiskPlatterView } from '../components/virtualMemory/DiskPlatterView';
 import { InterruptCycleStepper } from '../components/virtualMemory/InterruptCycleStepper';
 import { EatMetricsCard } from '../components/virtualMemory/EatMetricsCard';
 import { VirtualMemoryTelemetry } from '../components/virtualMemory/VirtualMemoryTelemetry';
+import { SimulationAnnouncement } from '../components/common/SimulationAnnouncement';
 import type { VirtualMemoryConfig, AccessType } from '../core/virtualMemory/types';
 import { useAnalytics } from '../context/AnalyticsContext';
 
@@ -139,6 +140,11 @@ export const VirtualMemoryPage: React.FC<VirtualMemoryPageProps> = ({ onBack }) 
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
+      <SimulationAnnouncement
+        message={currentStep
+          ? `Virtual memory step ${currentStep.stepNumber}: ${currentStep.status} for ${currentStep.accessType.toLowerCase()} of ${currentStep.rawInput}.`
+          : ''}
+      />
       
       {/* Top Breadcrumb & Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">

@@ -7,6 +7,7 @@ import { BitSplitter } from '../components/paging/BitSplitter';
 import { PageTableView } from '../components/paging/PageTableView';
 import { FrameGrid } from '../components/paging/FrameGrid';
 import { PagingTelemetry } from '../components/paging/PagingTelemetry';
+import { SimulationAnnouncement } from '../components/common/SimulationAnnouncement';
 import { calculateGeometry } from '../core/paging/addressTranslator';
 import type { PagingConfig } from '../core/paging/types';
 import { useAnalytics } from '../context/AnalyticsContext';
@@ -139,6 +140,11 @@ export const PagingPage: React.FC<PagingPageProps> = ({ onBack }) => {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
+      <SimulationAnnouncement
+        message={currentStep
+          ? `Paging step ${currentStep.stepNumber}: ${currentStep.status} for address ${currentStep.rawInput}.`
+          : ''}
+      />
       
       {/* Top Breadcrumb & Studio Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">

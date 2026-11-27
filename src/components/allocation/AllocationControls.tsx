@@ -65,7 +65,9 @@ export const AllocationControls: React.FC<AllocationControlsProps> = ({
         {/* Action Buttons */}
         <div className="flex items-center gap-1.5">
           <button
+            type="button"
             onClick={onReset}
+            aria-label="Reset simulation"
             className="p-2 rounded-xl bg-[var(--color-bg-surface-elevated)] border border-[var(--color-border-subtle)] text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] hover:bg-[var(--color-bg-muted)] transition-colors"
             title="Reset memory partitions to baseline"
           >
@@ -73,7 +75,9 @@ export const AllocationControls: React.FC<AllocationControlsProps> = ({
           </button>
 
           <button
+            type="button"
             onClick={onStepBackward}
+            aria-label="Step backward"
             disabled={!canStepBackward || isPlaying}
             className="p-2 rounded-xl bg-[var(--color-bg-surface-elevated)] border border-[var(--color-border-subtle)] text-[var(--color-text-main)] hover:bg-[var(--color-bg-muted)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             title="Step backward (restore previous partitions)"
@@ -82,7 +86,9 @@ export const AllocationControls: React.FC<AllocationControlsProps> = ({
           </button>
 
           <button
+            type="button"
             onClick={onTogglePlay}
+            aria-label={isPlaying ? 'Pause simulation' : 'Play simulation'}
             disabled={!canStepForward && !isPlaying}
             className={`px-4 py-2 rounded-xl flex items-center gap-1.5 text-xs font-bold transition-all shadow-md ${
               isPlaying
@@ -105,7 +111,9 @@ export const AllocationControls: React.FC<AllocationControlsProps> = ({
           </button>
 
           <button
+            type="button"
             onClick={onStepForward}
+            aria-label="Step forward"
             disabled={!canStepForward || isPlaying}
             className="p-2 rounded-xl bg-[var(--color-bg-surface-elevated)] border border-[var(--color-border-subtle)] text-[var(--color-text-main)] hover:bg-[var(--color-bg-muted)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             title="Step forward (execute next operation)"
@@ -114,7 +122,9 @@ export const AllocationControls: React.FC<AllocationControlsProps> = ({
           </button>
 
           <button
+            type="button"
             onClick={onJumpToEnd}
+            aria-label="Run to end"
             disabled={!canStepForward || isPlaying}
             className="p-2 rounded-xl bg-[var(--color-bg-surface-elevated)] border border-[var(--color-border-subtle)] text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] hover:bg-[var(--color-bg-muted)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             title="Run all remaining operations"
@@ -131,6 +141,8 @@ export const AllocationControls: React.FC<AllocationControlsProps> = ({
             return (
               <button
                 key={speed}
+                type="button"
+                aria-pressed={isSelected}
                 onClick={() => onSpeedChange(speed)}
                 className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold transition-all ${
                   isSelected

@@ -61,7 +61,9 @@ export const VirtualMemoryControls: React.FC<VirtualMemoryControlsProps> = ({
       {/* Playback Controls */}
       <div className="flex items-center gap-2">
         <button
+          type="button"
           onClick={onStepBackward}
+          aria-label="Step backward"
           disabled={!canStepBackward}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-surface-elevated)] hover:bg-[var(--color-bg-muted)] text-[var(--color-text-main)] text-xs font-medium disabled:opacity-40 disabled:cursor-not-allowed transition"
           title="Step Backward (Revert Previous State)"
@@ -71,7 +73,9 @@ export const VirtualMemoryControls: React.FC<VirtualMemoryControlsProps> = ({
         </button>
 
         <button
+          type="button"
           onClick={onTogglePlay}
+          aria-label={isPlaying ? 'Pause playback' : 'Play playback'}
           className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg font-medium text-xs shadow-md transition"
           style={{
             backgroundColor: 'var(--color-accent-primary)',
@@ -94,7 +98,9 @@ export const VirtualMemoryControls: React.FC<VirtualMemoryControlsProps> = ({
         </button>
 
         <button
+          type="button"
           onClick={onStepForward}
+          aria-label="Step forward"
           disabled={!canStepForward}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-surface-elevated)] hover:bg-[var(--color-bg-muted)] text-[var(--color-text-main)] text-xs font-medium disabled:opacity-40 disabled:cursor-not-allowed transition"
           title="Step Forward to Next Reference"
@@ -104,7 +110,9 @@ export const VirtualMemoryControls: React.FC<VirtualMemoryControlsProps> = ({
         </button>
 
         <button
+          type="button"
           onClick={onReset}
+          aria-label="Reset simulation"
           className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[var(--color-border-subtle)] hover:border-[var(--color-accent-danger)] hover:text-[var(--color-accent-danger)] text-[var(--color-text-muted)] text-xs transition"
           title="Reset Simulation State"
         >
@@ -119,6 +127,8 @@ export const VirtualMemoryControls: React.FC<VirtualMemoryControlsProps> = ({
         {[0.5, 1.0, 1.5, 2.0].map((s) => (
           <button
             key={s}
+            type="button"
+            aria-pressed={playbackSpeed === s}
             onClick={() => onSpeedChange(s)}
             className={`px-2 py-0.5 rounded text-[11px] font-mono transition ${
               playbackSpeed === s
@@ -132,7 +142,7 @@ export const VirtualMemoryControls: React.FC<VirtualMemoryControlsProps> = ({
       </div>
 
       {/* Presets */}
-      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar" role="group" aria-label="Virtual memory presets">
         <span className="text-[10px] uppercase font-mono text-[var(--color-text-subtle)] flex items-center gap-1">
           <Sparkles className="w-3 h-3 text-[var(--color-accent-warning)]" />
           Presets:
@@ -140,6 +150,8 @@ export const VirtualMemoryControls: React.FC<VirtualMemoryControlsProps> = ({
         {VM_PRESETS.map((p) => (
           <button
             key={p.id}
+            type="button"
+            aria-pressed={activePreset === p.id}
             onClick={() => onSelectPreset(p.id)}
             className={`whitespace-nowrap px-2.5 py-1 rounded-md text-xs transition border ${
               activePreset === p.id

@@ -77,14 +77,19 @@ export const SegmentTableView: React.FC<SegmentTableViewProps> = ({
       </div>
 
       {editError && (
-        <div className="mb-2 p-2 rounded-lg bg-rose-500/10 border border-rose-500/30 text-[11px] text-rose-400 flex items-center gap-1.5 font-mono">
+        <div id="segment-edit-error" role="alert" className="mb-2 p-2 rounded-lg bg-rose-500/10 border border-rose-500/30 text-[11px] text-rose-400 flex items-center gap-1.5 font-mono">
           <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
           <span>{editError}</span>
         </div>
       )}
 
       {/* Table Container */}
-      <div className="flex-1 overflow-y-auto max-h-[300px] rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)]">
+      <div
+        className="flex-1 overflow-auto max-h-[300px] rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)]"
+        role="region"
+        aria-label="Scrollable segment descriptor table"
+        tabIndex={0}
+      >
         <table className="w-full text-left text-xs font-mono">
           <thead className="sticky top-0 bg-[var(--color-bg-surface-elevated)] border-b border-[var(--color-border-medium)] text-[10px] uppercase text-[var(--color-text-subtle)]">
             <tr>
@@ -112,6 +117,9 @@ export const SegmentTableView: React.FC<SegmentTableViewProps> = ({
                     <td className="py-2 px-3">
                       <input
                         type="text"
+                        aria-label={`Segment ${seg.id} name`}
+                        aria-invalid={editError ? true : undefined}
+                        aria-describedby={editError ? 'segment-edit-error' : undefined}
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
                         className="w-full px-2 py-0.5 rounded border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-xs text-[var(--color-text-main)] font-mono"
@@ -120,6 +128,9 @@ export const SegmentTableView: React.FC<SegmentTableViewProps> = ({
                     <td className="py-2 px-3">
                       <input
                         type="number"
+                        aria-label={`Segment ${seg.id} base address`}
+                        aria-invalid={editError ? true : undefined}
+                        aria-describedby={editError ? 'segment-edit-error' : undefined}
                         value={editBase}
                         onChange={(e) => setEditBase(e.target.value)}
                         className="w-24 px-2 py-0.5 rounded border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-xs text-[var(--color-accent-primary)] font-mono font-bold"
@@ -128,6 +139,9 @@ export const SegmentTableView: React.FC<SegmentTableViewProps> = ({
                     <td className="py-2 px-3">
                       <input
                         type="number"
+                        aria-label={`Segment ${seg.id} limit`}
+                        aria-invalid={editError ? true : undefined}
+                        aria-describedby={editError ? 'segment-edit-error' : undefined}
                         value={editLimit}
                         onChange={(e) => setEditLimit(e.target.value)}
                         className="w-24 px-2 py-0.5 rounded border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-xs text-[var(--color-accent-secondary)] font-mono font-bold"
@@ -140,6 +154,7 @@ export const SegmentTableView: React.FC<SegmentTableViewProps> = ({
                       <div className="flex items-center justify-end gap-1">
                         <button
                           onClick={() => saveEdit(seg.id)}
+                          aria-label={`Save segment ${seg.id} changes`}
                           className="p-1 rounded text-emerald-400 hover:bg-emerald-500/20 transition"
                           title="Save Changes"
                         >
@@ -147,6 +162,7 @@ export const SegmentTableView: React.FC<SegmentTableViewProps> = ({
                         </button>
                         <button
                           onClick={cancelEdit}
+                          aria-label={`Cancel editing segment ${seg.id}`}
                           className="p-1 rounded text-[var(--color-text-muted)] hover:bg-[var(--color-bg-muted)] transition"
                           title="Cancel"
                         >
@@ -215,6 +231,7 @@ export const SegmentTableView: React.FC<SegmentTableViewProps> = ({
                       {onUpdateSegment && (
                         <button
                           onClick={() => startEdit(seg)}
+                          aria-label={`Edit ${seg.name} base and limit`}
                           className="p-1 rounded text-[var(--color-text-muted)] hover:text-[var(--color-accent-primary)] hover:bg-[var(--color-bg-surface-elevated)] transition"
                           title="Edit Base & Limit"
                         >
@@ -224,6 +241,7 @@ export const SegmentTableView: React.FC<SegmentTableViewProps> = ({
                       {onRemoveSegment && seg.id > 3 && (
                         <button
                           onClick={() => onRemoveSegment(seg.id)}
+                          aria-label={`Delete ${seg.name}`}
                           className="p-1 rounded text-rose-400 hover:bg-rose-500/20 transition"
                           title="Delete custom segment"
                         >

@@ -39,7 +39,7 @@ export const AllocationTelemetry: React.FC<AllocationTelemetryProps> = ({
           </span>
         </div>
 
-        <div className="overflow-x-auto pb-1 scrollbar-thin">
+        <div className="overflow-x-auto pb-1 scrollbar-thin" role="region" aria-label="Allocation operation queue" tabIndex={0}>
           <div className="flex items-center gap-2 min-w-max">
             {operations.map((op, idx) => {
               const isCurrent = idx === currentStepIndex;
@@ -50,6 +50,8 @@ export const AllocationTelemetry: React.FC<AllocationTelemetryProps> = ({
                 <button
                   key={idx}
                   type="button"
+                  aria-current={isCurrent ? 'step' : undefined}
+                  aria-label={`Operation ${idx + 1}: ${isAlloc ? `allocate ${op.processId}, ${op.size} KB` : `deallocate ${op.processId}`}`}
                   onClick={() => onSelectStep(idx)}
                   className={`px-3 py-1.5 rounded-xl border text-left font-mono text-xs transition-all ${
                     isCurrent

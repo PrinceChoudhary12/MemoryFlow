@@ -68,6 +68,7 @@ export const AddressInputCard: React.FC<AddressInputCardProps> = ({
           <button
             type="button"
             onClick={() => onToggleMode(false)}
+            aria-pressed={!isStreamMode}
             className={`px-2.5 py-1 rounded-md transition ${
               !isStreamMode
                 ? 'bg-[var(--color-bg-muted)] text-[var(--color-accent-primary)] font-semibold'
@@ -79,6 +80,7 @@ export const AddressInputCard: React.FC<AddressInputCardProps> = ({
           <button
             type="button"
             onClick={() => onToggleMode(true)}
+            aria-pressed={isStreamMode}
             className={`px-2.5 py-1 rounded-md transition ${
               isStreamMode
                 ? 'bg-[var(--color-bg-muted)] text-[var(--color-accent-primary)] font-semibold'
@@ -105,15 +107,16 @@ export const AddressInputCard: React.FC<AddressInputCardProps> = ({
         <div className="grid grid-cols-3 gap-2 text-xs">
           {/* Virtual Space Selector */}
           <div>
-            <label className="block text-[10px] text-[var(--color-text-muted)] mb-1">
+            <label htmlFor="paging-virtual-space" className="block text-[10px] text-[var(--color-text-muted)] mb-1">
               Virtual Space
             </label>
             <select
+              id="paging-virtual-space"
               value={config.virtualSpaceKb}
               onChange={(e) =>
                 onUpdateConfig({ ...config, virtualSpaceKb: Number(e.target.value) })
               }
-              className="w-full px-2 py-1.5 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-xs focus:outline-none focus:border-[var(--color-accent-primary)]"
+              className="w-full px-2 py-1.5 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-xs focus:border-[var(--color-accent-primary)]"
             >
               <option value={32}>32 KB (8 p)</option>
               <option value={64}>64 KB (16 p)</option>
@@ -123,15 +126,16 @@ export const AddressInputCard: React.FC<AddressInputCardProps> = ({
 
           {/* Physical RAM Selector */}
           <div>
-            <label className="block text-[10px] text-[var(--color-text-muted)] mb-1">
+            <label htmlFor="paging-physical-ram" className="block text-[10px] text-[var(--color-text-muted)] mb-1">
               Physical RAM
             </label>
             <select
+              id="paging-physical-ram"
               value={config.ramSizeKb}
               onChange={(e) =>
                 onUpdateConfig({ ...config, ramSizeKb: Number(e.target.value) })
               }
-              className="w-full px-2 py-1.5 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-xs focus:outline-none focus:border-[var(--color-accent-primary)]"
+              className="w-full px-2 py-1.5 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-xs focus:border-[var(--color-accent-primary)]"
             >
               <option value={16}>16 KB (4 f)</option>
               <option value={32}>32 KB (8 f)</option>
@@ -141,15 +145,16 @@ export const AddressInputCard: React.FC<AddressInputCardProps> = ({
 
           {/* Page Size Selector */}
           <div>
-            <label className="block text-[10px] text-[var(--color-text-muted)] mb-1">
+            <label htmlFor="paging-page-size" className="block text-[10px] text-[var(--color-text-muted)] mb-1">
               Page Size
             </label>
             <select
+              id="paging-page-size"
               value={config.pageSizeKb}
               onChange={(e) =>
                 onUpdateConfig({ ...config, pageSizeKb: Number(e.target.value) })
               }
-              className="w-full px-2 py-1.5 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-xs focus:outline-none focus:border-[var(--color-accent-primary)]"
+              className="w-full px-2 py-1.5 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-xs focus:border-[var(--color-accent-primary)]"
             >
               <option value={1}>1 KB (1024 B)</option>
               <option value={2}>2 KB (2048 B)</option>
@@ -169,13 +174,14 @@ export const AddressInputCard: React.FC<AddressInputCardProps> = ({
       {!isStreamMode ? (
         <form onSubmit={handleSingleSubmit} className="space-y-3">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-medium text-[var(--color-text-main)]">
+            <label htmlFor="paging-address" className="text-xs font-medium text-[var(--color-text-main)]">
               Virtual Address Input:
             </label>
             <div className="flex items-center gap-1 text-[10px] font-mono">
               <button
                 type="button"
                 onClick={() => setInputFormat('hex')}
+                aria-pressed={inputFormat === 'hex'}
                 className={`px-1.5 py-0.5 rounded ${
                   inputFormat === 'hex'
                     ? 'bg-[var(--color-accent-primary)] text-[var(--color-accent-contrast)]'
@@ -187,6 +193,7 @@ export const AddressInputCard: React.FC<AddressInputCardProps> = ({
               <button
                 type="button"
                 onClick={() => setInputFormat('dec')}
+                aria-pressed={inputFormat === 'dec'}
                 className={`px-1.5 py-0.5 rounded ${
                   inputFormat === 'dec'
                     ? 'bg-[var(--color-accent-primary)] text-[var(--color-accent-contrast)]'
@@ -198,14 +205,17 @@ export const AddressInputCard: React.FC<AddressInputCardProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col items-stretch gap-2 min-[375px]:flex-row min-[375px]:items-center">
             <div className="relative flex-1">
               <input
+                id="paging-address"
                 type="text"
                 value={singleInput}
                 onChange={(e) => setSingleInput(e.target.value)}
+                aria-invalid={validationError ? true : undefined}
+                aria-describedby={validationError ? 'paging-address-error' : undefined}
                 placeholder={inputFormat === 'hex' ? 'e.g. 0x4844' : 'e.g. 18500'}
-                className="w-full px-3 py-2 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-sm focus:outline-none focus:border-[var(--color-accent-primary)]"
+                className="min-w-0 w-full px-3 py-2 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-sm focus:border-[var(--color-accent-primary)]"
               />
               <span className="absolute right-2.5 top-2.5 text-[10px] font-mono text-[var(--color-text-subtle)]">
                 {inputFormat === 'hex' ? '16-bit' : 'Bytes'}
@@ -214,7 +224,7 @@ export const AddressInputCard: React.FC<AddressInputCardProps> = ({
 
             <button
               type="submit"
-              className="flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium text-xs shadow-md transition"
+              className="flex w-full items-center justify-center gap-1.5 px-4 py-2 rounded-lg font-medium text-xs shadow-md transition min-[375px]:w-auto"
               style={{
                 backgroundColor: 'var(--color-accent-primary)',
                 color: 'var(--color-accent-contrast)',
@@ -226,7 +236,7 @@ export const AddressInputCard: React.FC<AddressInputCardProps> = ({
           </div>
 
           {validationError && (
-            <div className="flex items-center gap-1.5 text-xs text-[var(--color-accent-danger)]">
+            <div id="paging-address-error" role="alert" className="flex items-center gap-1.5 text-xs text-[var(--color-accent-danger)]">
               <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
               <span>{validationError}</span>
             </div>
@@ -240,15 +250,16 @@ export const AddressInputCard: React.FC<AddressInputCardProps> = ({
       ) : (
         /* Mode B: Reference Stream Sequence */
         <form onSubmit={handleStreamSubmit} className="space-y-3">
-          <label className="block text-xs font-medium text-[var(--color-text-main)]">
+          <label htmlFor="paging-stream" className="block text-xs font-medium text-[var(--color-text-main)]">
             Reference Access Sequence (Comma-Separated):
           </label>
           <textarea
+            id="paging-stream"
             value={streamInput}
             onChange={(e) => setStreamInput(e.target.value)}
             rows={3}
             placeholder="e.g. 0x1000, 0x1040, 0x2000, 0x1080, 0x3000"
-            className="w-full px-3 py-2 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-xs focus:outline-none focus:border-[var(--color-accent-primary)]"
+            className="w-full px-3 py-2 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-xs focus:border-[var(--color-accent-primary)]"
           />
           <button
             type="submit"

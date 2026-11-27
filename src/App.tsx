@@ -33,7 +33,7 @@ const AppContent: React.FC = () => {
         return <AllocationPage onBack={() => setActiveModule('dashboard')} />;
       case 'analytics':
         return (
-          <Suspense fallback={<div className="text-sm text-[var(--color-text-muted)]">Loading analytics…</div>}>
+          <Suspense fallback={<div role="status" aria-live="polite" aria-busy="true" className="text-sm text-[var(--color-text-muted)]">Loading analytics…</div>}>
             <AnalyticsPage reports={reports} captureError={captureError} />
           </Suspense>
         );
