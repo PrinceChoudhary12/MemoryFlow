@@ -1,7 +1,7 @@
 # MemoryFlow — Master Project Status & Tracking
 
 **Repository:** [PrinceChoudhary12/MemoryFlow](https://github.com/PrinceChoudhary12/MemoryFlow)  
-**Current Active Version:** `v0.5.0`  
+**Current Active Version:** `v0.6.0`  
 **Current Branch:** `main`  
 **Target Release:** `v1.0.0 Production Release`  
 **Last Updated:** November 2026
@@ -17,7 +17,7 @@
 | **v0.3.0** | Segmentation Simulator & Memory Protection | `COMPLETED` | `v0.3.0` | Base/Limit registers, SegFault traps, external fragmentation |
 | **v0.4.0** | Virtual Memory & Demand Paging Lab | `COMPLETED` | `v0.4.0` | Demand paging, swap disk, page fault interrupt cycle, EAT |
 | **v0.5.0** | FIFO & LRU Page Replacement Studio | `COMPLETED` | `v0.5.0` | Algorithmic comparison, Belady's anomaly, hit/fault ribbons |
-| **v0.6.0** | Dynamic Memory Allocation Studio | `PENDING` | `v0.6.0` | First/Best/Worst Fit, hole coalescing, partition splitting |
+| **v0.6.0** | Dynamic Memory Allocation Studio | `IMPLEMENTED (UNRELEASED)` | `v0.6.0` | First/Best/Worst Fit, hole coalescing, partition splitting, 81/81 tests |
 | **v0.7.0** | Analytics, Benchmark & Export | `PENDING` | `v0.7.0` | Recharts comparative telemetry, JSON/CSV/PDF exports |
 | **v0.8.0** | UI/UX Refinement & Polish | `PENDING` | `v0.8.0` | Keyboard shortcuts, mobile navigation, ARIA accessibility |
 | **v0.9.0** | Complete Quality Assurance | `PENDING` | `v0.9.0` | 100% test coverage across all labs, zero linter warnings |
@@ -64,16 +64,25 @@
 - Interactive visual studio (`ReplacementPage.tsx`) featuring reference stream ribbon, side-by-side frame matrices, telemetry leader delta, and Belady comparison bar charts.
 - 100% reversible deep snapshot history (`stepForward`, `stepBackward`, `stepTo`, `reset`).
 
+### v0.6.0 — Dynamic Memory Allocation Studio
+- Pure TypeScript allocation strategies (`src/core/allocation/`) completely decoupled from React.
+- Synchronized 3-way execution engine (`AllocationEngine`) comparing First-Fit, Best-Fit, and Worst-Fit on identical memory workloads.
+- Exact partition splitting with configurable minimum hole threshold (`minHoleThresholdKb`) and single-pass adjacent-hole coalescing (preserving `RESERVED` OS barriers).
+- Explicit fragmentation telemetry: Internal Fragmentation $\sum (b.\text{size} - b.\text{requestedSize})$ and External Fragmentation ($\text{Total Free} - \text{Largest Hole}$).
+- Silberschatz textbook benchmark verified: First-Fit = 3/4, Best-Fit = 4/4, Worst-Fit = 3/4.
+- 100% reversible deep snapshot history (`stepForward`, `stepBackward`, `stepTo`, `reset`).
+
 ---
 
 ## 3. Active & Upcoming Milestones
 
-- **Active:** Ready to release `v0.5.0` upon user review.
-- **Next:** `v0.6.0` Dynamic Memory Allocation Studio (First-Fit, Best-Fit, Worst-Fit).
+- **Active:** `v0.6.0` is implemented, tested, and awaiting approved Git release (currently unreleased on `main` at `556b8ee`; 16 unstaged files: 5 modified, 11 untracked).
+- **Next:** `v0.7.0` Analytics, Benchmark & Export (Recharts comparative telemetry, JSON/CSV/PDF exports).
 
 ---
 
-## 4. Test Results & Build Status
-- **Unit Tests:** 67 passed across 11 test suites (100% pass rate).
-- **TypeScript & Build:** Clean compilation, 0 errors (`tsc -b && vite build`).
-- **Dev Server:** Active at `http://localhost:5173/`.
+## 4. Test Results, QA & Build Status
+- **Unit Tests:** 81 passed across 13 test suites (100% pass rate via `npm test`).
+- **TypeScript & Build:** Clean compilation, 0 errors (`npx tsc -b` & `npm run build`).
+- **Lint (`npm run lint`):** 0 errors, 22 pre-existing warnings in `v0.1.0`–`v0.4.0` files (0 warnings in `v0.6.0` files).
+- **Manual Browser QA:** Manual QA completed — user-confirmed across all 7 checklist areas (last tested on `http://localhost:5174/`; individual browser observations were not independently captured via automation, and no dev server is claimed running).

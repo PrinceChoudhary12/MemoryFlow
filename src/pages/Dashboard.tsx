@@ -68,7 +68,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       icon: Maximize2,
       color: 'var(--color-accent-danger)',
       topics: ['First-Fit Algorithm', 'Best-Fit Algorithm', 'Worst-Fit Algorithm', 'Hole Coalescing'],
-      status: 'Planned'
+      status: 'Live Simulator'
     }
   ];
 

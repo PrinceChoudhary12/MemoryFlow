@@ -14,9 +14,6 @@ export const Footer: React.FC = () => {
           <div>
             <div className="font-semibold text-[var(--color-text-main)] flex items-center gap-2">
               MemoryFlow
-              <span className="text-[10px] px-1.5 py-0.2 rounded bg-[var(--color-bg-muted)] text-[var(--color-text-subtle)] font-mono">
-                CA2 Operating Systems Visualizer
-              </span>
             </div>
             <p className="text-[11px] text-[var(--color-text-subtle)]">
               Built with React 19, TypeScript, Vite, Tailwind CSS & Vitest
