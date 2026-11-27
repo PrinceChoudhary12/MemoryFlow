@@ -10,6 +10,7 @@ import {
   executeAllocationStep,
   sortPartitionsByAddress,
 } from './allocationStrategies';
+import type { PartitionIdGenerator } from './allocationStrategies';
 import type {
   ActiveProcessSummary,
   AllocationOperation,
@@ -213,8 +214,13 @@ export class AllocationEngine {
   private worstFit: StrategyState;
   private history: TripleStrategyStep[];
   private snapshots: AllocationSnapshot[];
+  private readonly partitionIdGenerator?: PartitionIdGenerator;
 
-  constructor(preset: AllocationPreset = ALLOCATION_PRESETS[0]) {
+  constructor(
+    preset: AllocationPreset = ALLOCATION_PRESETS[0],
+    partitionIdGenerator?: PartitionIdGenerator
+  ) {
+    this.partitionIdGenerator = partitionIdGenerator;
     this.initialPartitions = sortPartitionsByAddress(preset.initialPartitions);
     this.minHoleThresholdKb = preset.minHoleThresholdKb;
     this.operations = preset.operations.map((op) => ({ ...op }));
@@ -283,7 +289,8 @@ export class AllocationEngine {
         failedAllocations: this.firstFit.failedAllocations,
         deallocations: this.firstFit.deallocations,
       },
-      this.minHoleThresholdKb
+      this.minHoleThresholdKb,
+      this.partitionIdGenerator
     );
 
     const bfRes = executeAllocationStep(
@@ -296,7 +303,8 @@ export class AllocationEngine {
         failedAllocations: this.bestFit.failedAllocations,
         deallocations: this.bestFit.deallocations,
       },
-      this.minHoleThresholdKb
+      this.minHoleThresholdKb,
+      this.partitionIdGenerator
     );
 
     const wfRes = executeAllocationStep(
@@ -309,7 +317,8 @@ export class AllocationEngine {
         failedAllocations: this.worstFit.failedAllocations,
         deallocations: this.worstFit.deallocations,
       },
-      this.minHoleThresholdKb
+      this.minHoleThresholdKb,
+      this.partitionIdGenerator
     );
 
     this.firstFit = makeStrategyState('FIRST_FIT', ffRes.nextPartitions, ffRes.nextCounters);

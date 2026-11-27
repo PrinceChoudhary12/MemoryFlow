@@ -9,12 +9,14 @@ import { ReplacementControls } from '../components/replacement/ReplacementContro
 import { SideBySideFrameMatrix } from '../components/replacement/SideBySideFrameMatrix';
 import { BeladyAnomalyCard } from '../components/replacement/BeladyAnomalyCard';
 import { ReplacementTelemetry } from '../components/replacement/ReplacementTelemetry';
+import { useAnalytics } from '../context/AnalyticsContext';
 
 interface ReplacementPageProps {
   onBack: () => void;
 }
 
 export const ReplacementPage: React.FC<ReplacementPageProps> = ({ onBack }) => {
+  const { captureSnapshot } = useAnalytics();
   // Initialize ReplacementEngine with Silberschatz preset
   const [engine] = useState(() => new ReplacementEngine());
 
@@ -55,7 +57,12 @@ export const ReplacementPage: React.FC<ReplacementPageProps> = ({ onBack }) => {
     setHistory(engine.getHistory());
     setStats(engine.getStats());
     setBeladyResult(engine.getBeladyAnalysis(2, 6));
-  }, [engine]);
+    void captureSnapshot(engine);
+  }, [engine, captureSnapshot]);
+
+  useEffect(() => {
+    void captureSnapshot(engine);
+  }, [engine, captureSnapshot]);
 
   // Stepping controls
   const handleStepForward = useCallback(() => {

@@ -18,7 +18,7 @@ const themeOptions: { id: Theme; label: string; accentColor: string; description
   {
     id: 'light',
     label: 'Light Paper',
-    accentColor: '#0284c7',
+    accentColor: '#0369a1',
     description: 'Crisp High-Contrast Academic Paper'
   },
   {

@@ -7,6 +7,7 @@ import {
   RefreshCw, 
   Maximize2, 
   ArrowRight, 
+  BarChart3,
   Sparkles, 
   CheckCircle2, 
   Activity,
@@ -100,10 +101,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={() => onNavigate('paging')}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--color-accent-primary)] hover:opacity-95 text-white font-medium text-xs sm:text-sm shadow-lg shadow-[var(--color-accent-glow)] transition transform active:scale-95"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--color-accent-primary)] hover:opacity-95 text-[var(--color-accent-contrast)] font-medium text-xs sm:text-sm shadow-lg shadow-[var(--color-accent-glow)] transition transform active:scale-95"
             >
               <span>Explore Paging Lab</span>
               <ArrowRight className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => onNavigate('analytics')}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--color-border-medium)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-surface-elevated)] text-[var(--color-text-main)] font-medium text-xs sm:text-sm transition"
+            >
+              <BarChart3 className="w-4 h-4 text-[var(--color-accent-primary)]" />
+              <span>Open Analytics</span>
             </button>
             <a
               href="#topology"
@@ -174,7 +183,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             </p>
           </div>
           <span className="text-xs font-mono text-[var(--color-text-subtle)] bg-[var(--color-bg-surface-elevated)] px-2.5 py-1 rounded-md border border-[var(--color-border-subtle)]">
-            v0.4.0 Active
+            v0.6.0 Active
           </span>
         </div>
 

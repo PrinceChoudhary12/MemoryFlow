@@ -2,7 +2,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Cpu, Palette, Check } from 'lucide-react';
 import { useTheme, type Theme } from '../../context/ThemeContext';
 
-export type NavModule = 'dashboard' | 'paging' | 'segmentation' | 'virtual-memory' | 'replacement' | 'allocation';
+export type NavModule =
+  | 'dashboard'
+  | 'paging'
+  | 'segmentation'
+  | 'virtual-memory'
+  | 'replacement'
+  | 'allocation'
+  | 'analytics';
 
 interface HeaderProps {
   activeModule: NavModule;
@@ -13,6 +20,7 @@ export const Header: React.FC<HeaderProps> = ({ activeModule, onSelectModule }) 
   const { theme, setTheme, themeNames } = useTheme();
   const [themeMenuOpen, setThemeMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const themeButtonRef = useRef<HTMLButtonElement>(null);
 
   const navItems: { id: NavModule; label: string; badge?: string }[] = [
     { id: 'dashboard', label: 'Studio Overview' },
@@ -21,6 +29,7 @@ export const Header: React.FC<HeaderProps> = ({ activeModule, onSelectModule }) 
     { id: 'virtual-memory', label: 'Virtual Memory', badge: 'Live' },
     { id: 'replacement', label: 'Page Replacement', badge: 'Live' },
     { id: 'allocation', label: 'Dynamic Allocation', badge: 'Live' },
+    { id: 'analytics', label: 'Analytics', badge: 'New' },
   ];
 
   useEffect(() => {
@@ -31,8 +40,9 @@ export const Header: React.FC<HeaderProps> = ({ activeModule, onSelectModule }) 
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && themeMenuOpen) {
         setThemeMenuOpen(false);
+        themeButtonRef.current?.focus();
       }
     };
 
@@ -42,40 +52,47 @@ export const Header: React.FC<HeaderProps> = ({ activeModule, onSelectModule }) 
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [themeMenuOpen]);
 
   return (
     <header className="sticky top-0 z-50 glass-panel border-b border-[var(--color-border-subtle)] bg-[var(--glass-bg)] px-4 lg:px-8 py-3 transition-colors">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
         
         {/* Brand & Version Badge */}
-        <div className="flex items-center gap-3 cursor-pointer" onClick={() => onSelectModule('dashboard')}>
-          <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-accent-primary)] to-[var(--color-accent-secondary)] text-white shadow-lg shadow-[var(--color-accent-glow)]">
+        <button
+          type="button"
+          className="flex items-center gap-3 bg-transparent p-0 text-left"
+          aria-label="MemoryFlow home"
+          onClick={() => onSelectModule('dashboard')}
+        >
+          <span className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-accent-primary)] to-[var(--color-accent-secondary)] text-white shadow-lg shadow-[var(--color-accent-glow)]">
             <Cpu className="w-5 h-5 text-white animate-pulse" />
-            <div className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-[var(--color-accent-tertiary)] border-2 border-[var(--color-bg-base)]"></div>
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
+            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-[var(--color-accent-tertiary)] border-2 border-[var(--color-bg-base)]"></span>
+          </span>
+          <span className="block">
+            <span className="flex items-center gap-2">
               <span className="font-extrabold text-lg tracking-tight text-[var(--color-text-main)]">
                 Memory<span className="text-[var(--color-accent-primary)]">Flow</span>
               </span>
               <span className="px-1.5 py-0.5 text-[10px] font-mono font-semibold rounded bg-[var(--color-bg-muted)] text-[var(--color-accent-primary)] border border-[var(--color-border-medium)]">
-                v0.6.0
+                v0.7.0
               </span>
-            </div>
-            <p className="text-[11px] text-[var(--color-text-subtle)] hidden sm:block">
+            </span>
+            <span className="hidden text-[11px] text-[var(--color-text-subtle)] sm:block">
               Dynamic Memory Management Visualizer • CA2
-            </p>
-          </div>
-        </div>
+            </span>
+          </span>
+        </button>
 
         {/* Studio Navigation Pills */}
-        <nav className="hidden md:flex items-center gap-1.5 p-1 rounded-xl bg-[var(--color-bg-surface-elevated)] border border-[var(--color-border-subtle)]" aria-label="Main Navigation">
+        <nav className="hidden min-w-0 flex-1 overflow-x-auto lg:flex items-center gap-1.5 p-1 rounded-xl bg-[var(--color-bg-surface-elevated)] border border-[var(--color-border-subtle)]" aria-label="Main Navigation">
           {navItems.map((item) => {
             const isActive = activeModule === item.id;
             return (
               <button
                 key={item.id}
+                type="button"
+                aria-current={isActive ? 'page' : undefined}
                 onClick={() => onSelectModule(item.id)}
                 style={
                   isActive
@@ -86,7 +103,7 @@ export const Header: React.FC<HeaderProps> = ({ activeModule, onSelectModule }) 
                       }
                     : undefined
                 }
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 ${
+                className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 ${
                   isActive
                     ? 'font-semibold'
                     : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] hover:bg-[var(--color-bg-muted)]'
@@ -115,10 +132,11 @@ export const Header: React.FC<HeaderProps> = ({ activeModule, onSelectModule }) 
           {/* Theme Dropdown */}
           <div className="relative" ref={dropdownRef}>
             <button
+              ref={themeButtonRef}
+              type="button"
               onClick={() => setThemeMenuOpen(!themeMenuOpen)}
               className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-surface-elevated)] text-[var(--color-text-main)] hover:border-[var(--color-accent-primary)] transition text-xs font-medium"
               title="Switch Visual Theme"
-              aria-haspopup="true"
               aria-expanded={themeMenuOpen}
               aria-label="Switch visual theme"
             >
@@ -129,8 +147,6 @@ export const Header: React.FC<HeaderProps> = ({ activeModule, onSelectModule }) 
             {themeMenuOpen && (
               <div 
                 className="absolute right-0 mt-2 w-56 rounded-xl glass-panel shadow-2xl p-1.5 z-50 animate-in fade-in zoom-in-95 duration-150"
-                role="menu"
-                aria-label="Visual Themes"
               >
                 <div className="px-2 py-1.5 text-[10px] font-semibold text-[var(--color-text-subtle)] uppercase tracking-wider">
                   Visual Themes
@@ -140,7 +156,8 @@ export const Header: React.FC<HeaderProps> = ({ activeModule, onSelectModule }) 
                   return (
                     <button
                       key={t.id}
-                      role="menuitem"
+                      type="button"
+                      aria-pressed={isSelected}
                       onClick={() => {
                         setTheme(t.id as Theme);
                         setThemeMenuOpen(false);
@@ -188,12 +205,14 @@ export const Header: React.FC<HeaderProps> = ({ activeModule, onSelectModule }) 
       </div>
 
       {/* Mobile Sub-Navigation Bar */}
-      <div className="flex md:hidden overflow-x-auto gap-1 pt-2 pb-1 no-scrollbar border-t border-[var(--color-border-subtle)] mt-2" aria-label="Mobile Navigation">
+      <nav className="flex lg:hidden overflow-x-auto gap-1 pt-2 pb-1 no-scrollbar border-t border-[var(--color-border-subtle)] mt-2" aria-label="Mobile Navigation">
         {navItems.map((item) => {
           const isActive = activeModule === item.id;
           return (
             <button
               key={item.id}
+              type="button"
+              aria-current={isActive ? 'page' : undefined}
               onClick={() => onSelectModule(item.id)}
               style={
                 isActive
@@ -213,7 +232,7 @@ export const Header: React.FC<HeaderProps> = ({ activeModule, onSelectModule }) 
             </button>
           );
         })}
-      </div>
+      </nav>
     </header>
   );
 };

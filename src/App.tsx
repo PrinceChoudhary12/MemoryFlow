@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { lazy, Suspense, useState } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
 import { Header, type NavModule } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
@@ -8,9 +8,16 @@ import { SegmentationPage } from './pages/SegmentationPage';
 import { VirtualMemoryPage } from './pages/VirtualMemoryPage';
 import { ReplacementPage } from './pages/ReplacementPage';
 import { AllocationPage } from './pages/AllocationPage';
+import { useAnalytics } from './context/AnalyticsContext';
+import { AnalyticsProvider } from './context/AnalyticsContext.tsx';
+
+const AnalyticsPage = lazy(() =>
+  import('./pages/AnalyticsPage').then((module) => ({ default: module.AnalyticsPage }))
+);
 
 const AppContent: React.FC = () => {
   const [activeModule, setActiveModule] = useState<NavModule>('dashboard');
+  const { reports, captureError } = useAnalytics();
 
   const renderActiveModule = () => {
     switch (activeModule) {
@@ -24,6 +31,12 @@ const AppContent: React.FC = () => {
         return <ReplacementPage onBack={() => setActiveModule('dashboard')} />;
       case 'allocation':
         return <AllocationPage onBack={() => setActiveModule('dashboard')} />;
+      case 'analytics':
+        return (
+          <Suspense fallback={<div className="text-sm text-[var(--color-text-muted)]">Loading analytics…</div>}>
+            <AnalyticsPage reports={reports} captureError={captureError} />
+          </Suspense>
+        );
       case 'dashboard':
       default:
         return <Dashboard onNavigate={(mod) => setActiveModule(mod)} />;
@@ -46,7 +59,9 @@ const AppContent: React.FC = () => {
 export function App() {
   return (
     <ThemeProvider>
-      <AppContent />
+      <AnalyticsProvider>
+        <AppContent />
+      </AnalyticsProvider>
     </ThemeProvider>
   );
 }

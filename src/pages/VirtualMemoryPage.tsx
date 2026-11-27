@@ -9,12 +9,14 @@ import { InterruptCycleStepper } from '../components/virtualMemory/InterruptCycl
 import { EatMetricsCard } from '../components/virtualMemory/EatMetricsCard';
 import { VirtualMemoryTelemetry } from '../components/virtualMemory/VirtualMemoryTelemetry';
 import type { VirtualMemoryConfig, AccessType } from '../core/virtualMemory/types';
+import { useAnalytics } from '../context/AnalyticsContext';
 
 interface VirtualMemoryPageProps {
   onBack: () => void;
 }
 
 export const VirtualMemoryPage: React.FC<VirtualMemoryPageProps> = ({ onBack }) => {
+  const { captureSnapshot } = useAnalytics();
   const [engine] = useState(() => {
     const eng = new VirtualMemoryEngine(DEFAULT_VM_CONFIG);
     eng.setReferenceStream(VM_PRESETS[0].stream);
@@ -44,7 +46,12 @@ export const VirtualMemoryPage: React.FC<VirtualMemoryPageProps> = ({ onBack }) 
     setStats(engine.getStats());
     setHistory(engine.getHistory());
     setCurrentStep(engine.getCurrentStep());
-  }, [engine]);
+    void captureSnapshot(engine);
+  }, [engine, captureSnapshot]);
+
+  useEffect(() => {
+    void captureSnapshot(engine);
+  }, [engine, captureSnapshot]);
 
   const handleTranslateSingle = (inputAddress: string, accessType: AccessType) => {
     engine.translateAddress(inputAddress, accessType);

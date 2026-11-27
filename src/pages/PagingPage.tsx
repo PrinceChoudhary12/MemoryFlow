@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Layers, ArrowLeft } from 'lucide-react';
 import { PagingEngine, DEFAULT_PAGING_CONFIG } from '../core/paging/pagingEngine';
 import { PagingControls, PAGING_PRESETS } from '../components/paging/PagingControls';
@@ -9,12 +9,14 @@ import { FrameGrid } from '../components/paging/FrameGrid';
 import { PagingTelemetry } from '../components/paging/PagingTelemetry';
 import { calculateGeometry } from '../core/paging/addressTranslator';
 import type { PagingConfig } from '../core/paging/types';
+import { useAnalytics } from '../context/AnalyticsContext';
 
 interface PagingPageProps {
   onBack: () => void;
 }
 
 export const PagingPage: React.FC<PagingPageProps> = ({ onBack }) => {
+  const { captureSnapshot } = useAnalytics();
   // Instantiate PagingEngine in ref to preserve across re-renders
   const engineRef = useRef<PagingEngine | null>(null);
   if (!engineRef.current) {
@@ -42,13 +44,18 @@ export const PagingPage: React.FC<PagingPageProps> = ({ onBack }) => {
   const geometry = useMemo(() => calculateGeometry(config), [config]);
 
   // Sync React state from engine
-  const syncWithEngine = () => {
+  const syncWithEngine = useCallback(() => {
     setPageTable(engine.getPageTable());
     setPhysicalFrames(engine.getPhysicalFrames());
     setStats(engine.getStats());
     setHistory(engine.getHistory());
     setCurrentStep(engine.getCurrentStep());
-  };
+    void captureSnapshot(engine);
+  }, [captureSnapshot, engine]);
+
+  useEffect(() => {
+    void captureSnapshot(engine);
+  }, [engine, captureSnapshot]);
 
   // Handle single address translation
   const handleTranslateSingle = (inputAddress: string) => {
@@ -128,7 +135,7 @@ export const PagingPage: React.FC<PagingPageProps> = ({ onBack }) => {
     }, intervalMs);
 
     return () => clearInterval(timer);
-  }, [isPlaying, playbackSpeed]);
+  }, [engine, isPlaying, playbackSpeed, syncWithEngine]);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">

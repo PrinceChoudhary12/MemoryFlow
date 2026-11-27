@@ -10,12 +10,14 @@ import { AllocationControls } from '../components/allocation/AllocationControls'
 import { PartitionMemoryMap } from '../components/allocation/PartitionMemoryMap';
 import { AllocationComparisonBoard } from '../components/allocation/AllocationComparisonBoard';
 import { AllocationTelemetry } from '../components/allocation/AllocationTelemetry';
+import { useAnalytics } from '../context/AnalyticsContext';
 
 interface AllocationPageProps {
   onBack: () => void;
 }
 
 export const AllocationPage: React.FC<AllocationPageProps> = ({ onBack }) => {
+  const { captureSnapshot } = useAnalytics();
   const [engine] = useState(() => new AllocationEngine(ALLOCATION_PRESETS[0]));
 
   const [snapshot, setSnapshot] = useState(() => engine.getState());
@@ -38,7 +40,12 @@ export const AllocationPage: React.FC<AllocationPageProps> = ({ onBack }) => {
     setOperations(engine.getOperations());
     setMinHoleThresholdKb(engine.getMinHoleThresholdKb());
     setActiveProcesses(engine.getActiveProcessSummary());
-  }, [engine]);
+    void captureSnapshot(engine);
+  }, [engine, captureSnapshot]);
+
+  useEffect(() => {
+    void captureSnapshot(engine);
+  }, [engine, captureSnapshot]);
 
   const handleStepForward = useCallback(() => {
     const step = engine.stepForward();

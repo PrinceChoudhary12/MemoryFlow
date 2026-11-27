@@ -22,6 +22,8 @@ const PROCESS_COLORS = [
   '#f97316', // Orange
 ];
 
+export type PartitionIdGenerator = (prefix?: string) => string;
+
 let partitionSeq = 0;
 function nextPartitionId(prefix = 'part'): string {
   partitionSeq += 1;
@@ -260,7 +262,8 @@ export function executeAllocationStep(
     failedAllocations: number;
     deallocations: number;
   },
-  minHoleThresholdKb = 0
+  minHoleThresholdKb = 0,
+  partitionIdGenerator?: PartitionIdGenerator
 ): {
   nextPartitions: MemoryPartition[];
   nextCounters: {
@@ -272,6 +275,7 @@ export function executeAllocationStep(
 } {
   const ordered = sortPartitionsByAddress(currentPartitions);
   const nextCounters = { ...counters };
+  const generatePartitionId = partitionIdGenerator ?? nextPartitionId;
 
   if (operation.type === 'ALLOCATE') {
     const requestSize = operation.size ?? 0;
@@ -376,7 +380,7 @@ export function executeAllocationStep(
 
       if (shouldSplit) {
         nextPartitions.push({
-          id: nextPartitionId('alloc'),
+          id: generatePartitionId('alloc'),
           startAddress: part.startAddress,
           size: requestSize,
           status: 'ALLOCATED',
@@ -385,7 +389,7 @@ export function executeAllocationStep(
           color: getProcessColor(pid),
         });
         nextPartitions.push({
-          id: nextPartitionId('hole'),
+          id: generatePartitionId('hole'),
           startAddress: part.startAddress + requestSize,
           size: remainder,
           status: 'FREE',
@@ -395,7 +399,7 @@ export function executeAllocationStep(
       } else {
         // Assign whole hole (absorbs remainder as internal fragmentation)
         nextPartitions.push({
-          id: nextPartitionId('alloc'),
+          id: generatePartitionId('alloc'),
           startAddress: part.startAddress,
           size: part.size,
           status: 'ALLOCATED',
@@ -468,7 +472,7 @@ export function executeAllocationStep(
     idx === targetIndex
       ? {
           ...part,
-          id: nextPartitionId('hole'),
+          id: generatePartitionId('hole'),
           status: 'FREE' as const,
           processId: null,
           requestedSize: null,

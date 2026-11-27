@@ -26,7 +26,7 @@
 | **Virtual Memory Lab** | `v0.4.0` | Secondary storage swap backing, demand paging, valid/invalid bits, and Page Fault interrupts. |
 | **Page Replacement Studio** | `v0.5.0` | Step-by-step benchmark of **FIFO** vs **LRU**, hit/miss counters, and Belady’s Anomaly demonstration. |
 | **Dynamic Memory Allocation**| `v0.6.0` | **First Fit**, **Best Fit**, and **Worst Fit** strategies with free hole coalescing visualization. |
-| **Analytics & Comparison** | `v0.7.0` | Recharts hit-rate telemetry, algorithmic comparison charts, and log exports. |
+| **Analytics & Comparison** | `v0.7.0` | Session-local analytics from all five labs, reproducible engine benchmarks, compatible comparisons, Recharts charts, JSON/CSV exports, and print-ready reports. |
 
 ---
 

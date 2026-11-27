@@ -302,7 +302,7 @@ export const SegmentInputCard: React.FC<SegmentInputCardProps> = ({
             <div className="flex items-center gap-2 pt-1">
               <button
                 type="submit"
-                className="flex-1 py-1 rounded-md bg-[var(--color-accent-primary)] text-white text-xs font-semibold hover:opacity-90 transition"
+                className="flex-1 py-1 rounded-md bg-[var(--color-accent-primary)] text-[var(--color-accent-contrast)] text-xs font-semibold hover:opacity-90 transition"
               >
                 Add to Table
               </button>

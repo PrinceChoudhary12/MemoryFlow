@@ -1,0 +1,121 @@
+@media print {
+  html,
+  body {
+    background: #ffffff !important;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  #root > div > header,
+  #root > div > footer {
+    display: none !important;
+  }
+
+  #root > div > main {
+    display: block !important;
+    flex: none !important;
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .analytics-page {
+    display: block !important;
+  }
+
+  .analytics-page > :not(.analytics-print-report) {
+    position: absolute !important;
+    top: 0 !important;
+    left: -10000px !important;
+    width: 100% !important;
+    visibility: hidden !important;
+  }
+
+  .analytics-print-report,
+  .analytics-print-report * {
+    visibility: visible !important;
+  }
+
+  .analytics-print-report {
+    display: block !important;
+    position: static !important;
+    width: auto !important;
+    padding: 0 !important;
+    color: #111827 !important;
+    background: #ffffff !important;
+    font-family: Arial, sans-serif;
+  }
+
+  .analytics-print-report section {
+    border: 1px solid #d1d5db !important;
+    background: #ffffff !important;
+    color: #111827 !important;
+    box-shadow: none !important;
+  }
+
+  .analytics-print-report h1,
+  .analytics-print-report h2,
+  .analytics-print-report h3 {
+    break-after: avoid-page;
+  }
+
+  .analytics-print-charts > div {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .analytics-print-chart {
+    break-inside: avoid-page;
+    color: #111827 !important;
+  }
+
+  .analytics-print-chart-bars {
+    display: block;
+    width: 100%;
+    height: 10px;
+    overflow: visible;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .analytics-print-table {
+    width: 100%;
+    margin-bottom: 12px;
+    border-collapse: collapse;
+    font-size: 8pt;
+  }
+
+  .analytics-print-table th,
+  .analytics-print-table td {
+    border: 1px solid #d1d5db;
+    padding: 4px 6px;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .analytics-print-table tr {
+    break-inside: avoid-page;
+  }
+
+  .analytics-print-table pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font-size: 7pt;
+  }
+
+  .analytics-print-report h1,
+  .analytics-print-report h2,
+  .analytics-print-report h3,
+  .analytics-print-report p,
+  .analytics-print-report th,
+  .analytics-print-report td {
+    color: #111827 !important;
+  }
+
+  @page {
+    margin: 16mm;
+  }
+}

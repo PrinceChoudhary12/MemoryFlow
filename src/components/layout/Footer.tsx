@@ -48,7 +48,7 @@ export const Footer: React.FC = () => {
               Prince Choudhary
             </div>
             <div className="text-[10px] text-[var(--color-text-subtle)] font-mono">
-              Branch: main • Release v0.1.0
+              Branch: main • Release v0.7.0
             </div>
           </div>
           <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[var(--color-accent-primary)] to-[var(--color-accent-secondary)] flex items-center justify-center text-white font-bold text-xs shadow-sm">

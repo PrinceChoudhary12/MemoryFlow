@@ -8,12 +8,14 @@ import { SegmentTableView } from '../components/segmentation/SegmentTableView';
 import { PhysicalMemoryMap } from '../components/segmentation/PhysicalMemoryMap';
 import { SegmentationTelemetry } from '../components/segmentation/SegmentationTelemetry';
 import type { SegmentationConfig, Segment } from '../core/segmentation/types';
+import { useAnalytics } from '../context/AnalyticsContext';
 
 interface SegmentationPageProps {
   onBack: () => void;
 }
 
 export const SegmentationPage: React.FC<SegmentationPageProps> = ({ onBack }) => {
+  const { captureSnapshot } = useAnalytics();
   const [engine] = useState(() => {
     const eng = new SegmentationEngine(DEFAULT_SEGMENTATION_CONFIG, DEFAULT_SEGMENTS);
     eng.setReferenceStream(SEGMENTATION_PRESETS[0].stream);
@@ -41,7 +43,12 @@ export const SegmentationPage: React.FC<SegmentationPageProps> = ({ onBack }) =>
     setStats(engine.getStats());
     setHistory(engine.getHistory());
     setCurrentStep(engine.getCurrentStep());
-  }, [engine]);
+    void captureSnapshot(engine);
+  }, [engine, captureSnapshot]);
+
+  useEffect(() => {
+    void captureSnapshot(engine);
+  }, [engine, captureSnapshot]);
 
   const handleTranslateSingle = (inputAddress: string) => {
     engine.translateAddress(inputAddress);

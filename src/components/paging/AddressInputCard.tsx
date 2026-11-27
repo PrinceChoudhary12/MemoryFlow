@@ -178,7 +178,7 @@ export const AddressInputCard: React.FC<AddressInputCardProps> = ({
                 onClick={() => setInputFormat('hex')}
                 className={`px-1.5 py-0.5 rounded ${
                   inputFormat === 'hex'
-                    ? 'bg-[var(--color-accent-primary)] text-white'
+                    ? 'bg-[var(--color-accent-primary)] text-[var(--color-accent-contrast)]'
                     : 'text-[var(--color-text-muted)] bg-[var(--color-bg-surface-elevated)]'
                 }`}
               >
@@ -189,7 +189,7 @@ export const AddressInputCard: React.FC<AddressInputCardProps> = ({
                 onClick={() => setInputFormat('dec')}
                 className={`px-1.5 py-0.5 rounded ${
                   inputFormat === 'dec'
-                    ? 'bg-[var(--color-accent-primary)] text-white'
+                    ? 'bg-[var(--color-accent-primary)] text-[var(--color-accent-contrast)]'
                     : 'text-[var(--color-text-muted)] bg-[var(--color-bg-surface-elevated)]'
                 }`}
               >
