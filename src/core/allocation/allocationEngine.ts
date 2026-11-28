@@ -38,6 +38,16 @@ function buildSilberschatzPartitions(): MemoryPartition[] {
   ];
 }
 
+function getRemainderPartitionId(partitions: MemoryPartition[]): string {
+  const baseId = 'custom-free-remainder';
+  let id = baseId;
+  let suffix = 1;
+  while (partitions.some((partition) => partition.id === id)) {
+    id = `${baseId}-${suffix++}`;
+  }
+  return id;
+}
+
 export const ALLOCATION_PRESETS: AllocationPreset[] = [
   {
     id: 'silberschatz',
@@ -153,7 +163,7 @@ export function parseAllocationStream(input: string): {
       }
       const pid = tokens[1];
       const size = Number(tokens[2]);
-      if (!Number.isInteger(size) || size <= 0) {
+      if (!Number.isSafeInteger(size) || size <= 0) {
         return {
           valid: false,
           operations: [],
@@ -435,11 +445,81 @@ export class AllocationEngine {
     minHoleThresholdKb?: number;
     initialPartitions?: MemoryPartition[];
     operations?: AllocationOperation[];
-  }): void {
-    if (options.initialPartitions) {
-      this.initialPartitions = sortPartitionsByAddress(options.initialPartitions);
-    } else if (options.totalMemoryKb && options.totalMemoryKb > 0) {
-      this.initialPartitions = [
+  }): { success: boolean; error?: string } {
+    let nextInitialPartitions = this.initialPartitions;
+
+    if (options.initialPartitions !== undefined) {
+      if (options.initialPartitions.length === 0) {
+        return { success: false, error: 'At least one initial partition is required.' };
+      }
+
+      const sortedPartitions = sortPartitionsByAddress(options.initialPartitions);
+      let totalPartitionSize = 0;
+      const partitionIds = new Set<string>();
+      for (const partition of sortedPartitions) {
+        if (!partition.id.trim()) {
+          return {
+            success: false,
+            error: 'Each initial partition needs a non-empty ID.',
+          };
+        }
+        if (partitionIds.has(partition.id)) {
+          return { success: false, error: `Initial partition ID "${partition.id}" is duplicated.` };
+        }
+        if (
+          !Number.isSafeInteger(partition.startAddress) ||
+          !Number.isSafeInteger(partition.size) ||
+          partition.size <= 0
+        ) {
+          return {
+            success: false,
+            error: 'Each initial partition needs a positive safe-integer size and start address.',
+          };
+        }
+        partitionIds.add(partition.id);
+        totalPartitionSize += partition.size;
+        if (!Number.isSafeInteger(totalPartitionSize)) {
+          return { success: false, error: 'Total partition size exceeds the safe integer range.' };
+        }
+      }
+
+      const totalMemoryKb = options.totalMemoryKb ?? totalPartitionSize;
+      if (!Number.isSafeInteger(totalMemoryKb) || totalMemoryKb <= 0) {
+        return { success: false, error: 'Total memory must be a positive safe integer.' };
+      }
+      if (totalPartitionSize > totalMemoryKb) {
+        return { success: false, error: 'Initial partitions cannot exceed configured total memory.' };
+      }
+
+      let expectedStartAddress = 0;
+      for (const partition of sortedPartitions) {
+        if (partition.startAddress !== expectedStartAddress) {
+          return {
+            success: false,
+            error: 'Initial partitions must form a contiguous layout starting at address 0.',
+          };
+        }
+        expectedStartAddress += partition.size;
+      }
+
+      nextInitialPartitions = sortedPartitions.map((partition) => ({ ...partition }));
+      const remainingKb = totalMemoryKb - totalPartitionSize;
+      if (remainingKb > 0) {
+        nextInitialPartitions.push({
+          id: getRemainderPartitionId(nextInitialPartitions),
+          startAddress: totalPartitionSize,
+          size: remainingKb,
+          status: 'FREE',
+          processId: null,
+          requestedSize: null,
+          label: 'Unassigned remainder',
+        });
+      }
+    } else if (options.totalMemoryKb !== undefined) {
+      if (!Number.isSafeInteger(options.totalMemoryKb) || options.totalMemoryKb <= 0) {
+        return { success: false, error: 'Total memory must be a positive safe integer.' };
+      }
+      nextInitialPartitions = [
         {
           id: 'free-custom',
           startAddress: 0,
@@ -451,6 +531,8 @@ export class AllocationEngine {
       ];
     }
 
+    this.initialPartitions = nextInitialPartitions;
+
     if (options.minHoleThresholdKb !== undefined && options.minHoleThresholdKb >= 0) {
       this.minHoleThresholdKb = options.minHoleThresholdKb;
     }
@@ -460,6 +542,7 @@ export class AllocationEngine {
     }
 
     this.reset();
+    return { success: true };
   }
 
   public getActiveProcessSummary(): ActiveProcessSummary[] {

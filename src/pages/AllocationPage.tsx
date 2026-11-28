@@ -4,7 +4,7 @@ import {
   AllocationEngine,
   ALLOCATION_PRESETS,
 } from '../core/allocation/allocationEngine';
-import type { AllocationOperation } from '../core/allocation/types';
+import type { AllocationOperation, MemoryPartition } from '../core/allocation/types';
 import { AllocationInputCard } from '../components/allocation/AllocationInputCard';
 import { AllocationControls } from '../components/allocation/AllocationControls';
 import { PartitionMemoryMap } from '../components/allocation/PartitionMemoryMap';
@@ -96,14 +96,23 @@ export const AllocationPage: React.FC<AllocationPageProps> = ({ onBack }) => {
     syncWithEngine();
   };
 
-  const handleApplyStream = (ops: AllocationOperation[], thresholdKb: number) => {
+  const handleApplyStream = (
+    ops: AllocationOperation[],
+    thresholdKb: number,
+    totalMemoryKb: number,
+    initialPartitions: MemoryPartition[]
+  ) => {
     setIsPlaying(false);
-    setActivePresetId('');
-    engine.configureCustom({
+    const result = engine.configureCustom({
+      totalMemoryKb,
+      initialPartitions,
       operations: ops,
       minHoleThresholdKb: thresholdKb,
     });
+    if (!result.success) return result;
+    setActivePresetId('');
     syncWithEngine();
+    return result;
   };
 
   const handleSubmitOperation = (op: AllocationOperation) => {

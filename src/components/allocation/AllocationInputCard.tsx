@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Sliders, BookOpen, PlusCircle, Trash2, CheckCircle2, AlertCircle } from 'lucide-react';
 import {
   ALLOCATION_PRESETS,
@@ -8,6 +8,7 @@ import type {
   ActiveProcessSummary,
   AllocationOperation,
   AllocationStrategy,
+  MemoryPartition,
 } from '../../core/allocation/types';
 
 const STRATEGY_LABEL: Record<AllocationStrategy, string> = {
@@ -22,7 +23,12 @@ interface AllocationInputCardProps {
   activePresetId: string;
   activeProcesses: ActiveProcessSummary[];
   onSelectPreset: (presetId: string) => void;
-  onApplyStream: (ops: AllocationOperation[], thresholdKb: number) => void;
+  onApplyStream: (
+    ops: AllocationOperation[],
+    thresholdKb: number,
+    totalMemoryKb: number,
+    initialPartitions: MemoryPartition[]
+  ) => { success: boolean; error?: string };
   onSubmitOperation: (op: AllocationOperation) => void;
   disabled?: boolean;
 }
@@ -35,6 +41,24 @@ function formatOperations(ops: AllocationOperation[]): string {
     .join(', ');
 }
 
+interface PartitionDraft {
+  id: number;
+  size: string;
+  status: 'FREE' | 'RESERVED';
+}
+
+function draftsFromPreset(presetId: string): { totalMemoryKb: string; partitions: PartitionDraft[] } {
+  const preset = ALLOCATION_PRESETS.find((item) => item.id === presetId) ?? ALLOCATION_PRESETS[0];
+  return {
+    totalMemoryKb: String(preset.totalMemoryKb),
+    partitions: preset.initialPartitions.map((partition, index) => ({
+      id: index + 1,
+      size: String(partition.size),
+      status: partition.status === 'RESERVED' ? 'RESERVED' : 'FREE',
+    })),
+  };
+}
+
 export const AllocationInputCard: React.FC<AllocationInputCardProps> = ({
   operations,
   minHoleThresholdKb,
@@ -45,6 +69,12 @@ export const AllocationInputCard: React.FC<AllocationInputCardProps> = ({
   onSubmitOperation,
   disabled = false,
 }) => {
+  const initialDraft = draftsFromPreset(activePresetId);
+  const nextPartitionId = useRef(initialDraft.partitions.length);
+  const [totalMemoryText, setTotalMemoryText] = useState(initialDraft.totalMemoryKb);
+  const [partitionDrafts, setPartitionDrafts] = useState(initialDraft.partitions);
+  const [applyError, setApplyError] = useState<string | null>(null);
+
   const [streamText, setStreamText] = useState(() => formatOperations(operations));
   const [thresholdKb, setThresholdKb] = useState(minHoleThresholdKb);
   const [validation, setValidation] = useState(() =>
@@ -71,22 +101,104 @@ export const AllocationInputCard: React.FC<AllocationInputCardProps> = ({
   const [newSize, setNewSize] = useState('128');
   const [adHocError, setAdHocError] = useState<string | null>(null);
 
+  const customLayout: {
+    totalMemoryKb: number;
+    partitions: MemoryPartition[];
+    remainderKb: number;
+  } | { error: string } = (() => {
+    const totalMemoryKb = Number(totalMemoryText);
+    if (!Number.isSafeInteger(totalMemoryKb) || totalMemoryKb <= 0) {
+      return { error: 'Total memory must be a positive safe integer (KB).' };
+    }
+    if (partitionDrafts.length === 0) {
+      return { error: 'At least one initial partition is required.' };
+    }
+
+    const partitions: MemoryPartition[] = [];
+    let startAddress = 0;
+    for (const [index, draft] of partitionDrafts.entries()) {
+      const size = Number(draft.size);
+      if (!Number.isSafeInteger(size) || size <= 0) {
+        return { error: `Partition ${index + 1} size must be a positive safe integer (KB).` };
+      }
+      const endAddress = startAddress + size;
+      if (!Number.isSafeInteger(endAddress)) {
+        return { error: 'Total partition size exceeds the safe integer range.' };
+      }
+      if (endAddress > totalMemoryKb) {
+        return { error: 'Initial partition sizes cannot exceed total memory.' };
+      }
+      partitions.push({
+        id: `custom-partition-${draft.id}`,
+        startAddress,
+        size,
+        status: draft.status,
+        processId: null,
+        requestedSize: null,
+        ...(draft.status === 'RESERVED' ? { label: `Reserved ${index + 1}` } : {}),
+      });
+      startAddress = endAddress;
+    }
+
+    const remainder = totalMemoryKb - startAddress;
+    if (remainder > 0) {
+      partitions.push({
+        id: 'custom-free-remainder',
+        startAddress,
+        size: remainder,
+        status: 'FREE',
+        processId: null,
+        requestedSize: null,
+        label: 'Unassigned remainder',
+      });
+    }
+
+    return { totalMemoryKb, partitions, remainderKb: remainder };
+  })();
+
   const handleStreamChange = (text: string) => {
     setStreamText(text);
     setValidation(parseAllocationStream(text));
   };
 
   const handleApply = () => {
-    if (validation.valid) {
-      onApplyStream(validation.operations, thresholdKb);
-    }
+    if (!validation.valid || !('partitions' in customLayout)) return;
+    const result = onApplyStream(
+      validation.operations,
+      thresholdKb,
+      customLayout.totalMemoryKb,
+      customLayout.partitions
+    );
+    setApplyError(result.success ? null : result.error ?? 'Custom allocation configuration was rejected.');
   };
 
   const handleThresholdChange = (val: number) => {
     setThresholdKb(val);
-    if (validation.valid) {
-      onApplyStream(validation.operations, val);
+    if (validation.valid && 'partitions' in customLayout) {
+      const result = onApplyStream(
+        validation.operations,
+        val,
+        customLayout.totalMemoryKb,
+        customLayout.partitions
+      );
+      setApplyError(result.success ? null : result.error ?? 'Custom allocation configuration was rejected.');
     }
+  };
+
+  const handleSelectPreset = (presetId: string) => {
+    const presetDraft = draftsFromPreset(presetId);
+    setTotalMemoryText(presetDraft.totalMemoryKb);
+    setPartitionDrafts(presetDraft.partitions);
+    nextPartitionId.current = presetDraft.partitions.length;
+    setApplyError(null);
+    onSelectPreset(presetId);
+  };
+
+  const handleAddPartition = () => {
+    const id = nextPartitionId.current + 1;
+    nextPartitionId.current = id;
+    setPartitionDrafts((drafts) => [...drafts, { id, size: '128', status: 'FREE' }]);
+    setApplyError(null);
   };
 
   const handleAdHocAllocate = (e: React.FormEvent) => {
@@ -98,14 +210,13 @@ export const AllocationInputCard: React.FC<AllocationInputCardProps> = ({
     }
 
     const size = Number(newSize.trim());
-    if (!newSize.trim() || !Number.isInteger(size) || size <= 0) {
-      setAdHocError('Size must be a positive integer (KB).');
+    if (!newSize.trim() || !Number.isSafeInteger(size) || size <= 0) {
+      setAdHocError('Size must be a positive safe integer (KB).');
       return;
     }
 
     setAdHocError(null);
     onSubmitOperation({ type: 'ALLOCATE', processId: pid, size });
-    // Auto-increment default PID suggestion if numeric suffix
     const match = pid.match(/^([A-Za-z]+)(\d+)$/);
     if (match) {
       setNewPid(`${match[1]}${parseInt(match[2], 10) + 1}`);
@@ -170,7 +281,7 @@ export const AllocationInputCard: React.FC<AllocationInputCardProps> = ({
                 type="button"
                 aria-pressed={isActive}
                 disabled={disabled}
-                onClick={() => onSelectPreset(preset.id)}
+                onClick={() => handleSelectPreset(preset.id)}
                 className={`text-left px-2.5 py-1.5 rounded-lg border text-xs transition-all ${
                   isActive
                     ? 'bg-[var(--color-accent-danger)]/15 border-[var(--color-accent-danger)] text-[var(--color-text-main)] font-semibold shadow-sm'
@@ -222,7 +333,7 @@ export const AllocationInputCard: React.FC<AllocationInputCardProps> = ({
               onClick={handleApply}
               className="px-2.5 py-0.5 rounded text-[11px] font-semibold bg-[var(--color-accent-danger)] text-[var(--color-accent-contrast)] hover:opacity-90 transition-opacity"
             >
-              Apply Stream
+              Apply Stream & Layout
             </button>
           </div>
         ) : (
@@ -232,6 +343,145 @@ export const AllocationInputCard: React.FC<AllocationInputCardProps> = ({
           </div>
         )}
       </div>
+
+      <section aria-labelledby="allocation-initial-layout-heading" className="space-y-2 border-t border-[var(--color-border-subtle)] pt-3">
+        <div className="flex items-center justify-between gap-2">
+          <h3 id="allocation-initial-layout-heading" className="text-xs font-semibold text-[var(--color-text-main)]">
+            Initial Memory Partitions
+          </h3>
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={() => {
+              setPartitionDrafts([]);
+              setApplyError(null);
+            }}
+            className="text-[10px] text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] underline"
+          >
+            Clear layout
+          </button>
+        </div>
+        <p className="text-[10px] text-[var(--color-text-subtle)]">
+          Partition edits remain a draft until you apply the configuration.
+        </p>
+        <label htmlFor="allocation-total-memory" className="block text-[11px] text-[var(--color-text-muted)]">
+          Total Memory (KB)
+        </label>
+        <input
+          id="allocation-total-memory"
+          type="number"
+          min={1}
+          step={1}
+          value={totalMemoryText}
+          disabled={disabled}
+          onChange={(event) => {
+            setTotalMemoryText(event.target.value);
+            setApplyError(null);
+          }}
+          aria-invalid={'error' in customLayout}
+          aria-describedby={'error' in customLayout ? 'allocation-layout-error' : undefined}
+          className="w-full px-3 py-2 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-surface-elevated)] text-[var(--color-text-main)] font-mono text-xs"
+        />
+        <div className="space-y-2">
+          {partitionDrafts.map((partition, index) => (
+            <div key={partition.id} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-end gap-2">
+              <div>
+                <label htmlFor={`allocation-partition-size-${partition.id}`} className="block text-[10px] text-[var(--color-text-muted)] mb-1">
+                  Partition {index + 1} size (KB)
+                </label>
+                <input
+                  id={`allocation-partition-size-${partition.id}`}
+                  type="number"
+                  min={1}
+                  step={1}
+                  value={partition.size}
+                  disabled={disabled}
+                  onChange={(event) => {
+                    setPartitionDrafts((drafts) =>
+                      drafts.map((draft) =>
+                        draft.id === partition.id ? { ...draft, size: event.target.value } : draft
+                      )
+                    );
+                    setApplyError(null);
+                  }}
+                  aria-invalid={'error' in customLayout}
+                  aria-describedby={'error' in customLayout ? 'allocation-layout-error' : undefined}
+                  className="w-full px-2.5 py-2 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-surface-elevated)] text-[var(--color-text-main)] font-mono text-xs"
+                />
+              </div>
+              <div>
+                <label htmlFor={`allocation-partition-type-${partition.id}`} className="block text-[10px] text-[var(--color-text-muted)] mb-1">
+                  Partition {index + 1} type
+                </label>
+                <select
+                  id={`allocation-partition-type-${partition.id}`}
+                  value={partition.status}
+                  disabled={disabled}
+                  onChange={(event) => {
+                    setPartitionDrafts((drafts) =>
+                      drafts.map((draft) =>
+                        draft.id === partition.id
+                          ? {
+                              ...draft,
+                              status: event.target.value === 'RESERVED' ? 'RESERVED' : 'FREE',
+                            }
+                          : draft
+                      )
+                    );
+                    setApplyError(null);
+                  }}
+                  className="w-full px-2.5 py-2 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-surface-elevated)] text-[var(--color-text-main)] text-xs"
+                >
+                  <option value="FREE">Free</option>
+                  <option value="RESERVED">Reserved / OS</option>
+                </select>
+              </div>
+              <button
+                type="button"
+                disabled={disabled}
+                aria-label={`Remove partition ${index + 1}`}
+                onClick={() => {
+                  setPartitionDrafts((drafts) => drafts.filter((draft) => draft.id !== partition.id));
+                  setApplyError(null);
+                }}
+                className="p-2 rounded-lg border border-[var(--color-border-medium)] text-[var(--color-text-muted)] hover:text-rose-400"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={handleAddPartition}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[var(--color-border-medium)] text-[11px] font-semibold text-[var(--color-text-main)] hover:border-[var(--color-accent-danger)]"
+        >
+          <PlusCircle className="w-3.5 h-3.5" />
+          Add initial partition
+        </button>
+        {'error' in customLayout ? (
+          <p id="allocation-layout-error" role="alert" className="text-[11px] text-rose-400">
+            {customLayout.error}
+          </p>
+        ) : (
+          <p role="status" className="text-[10px] text-[var(--color-text-subtle)]">
+            Layout covers {customLayout.totalMemoryKb} KB. {customLayout.remainderKb > 0
+              ? `${customLayout.remainderKb} KB is shown as a separate auto-generated free remainder.`
+              : 'No remainder is needed.'}{' '}
+            All three strategies use the same initial partitions.
+          </p>
+        )}
+        {applyError && <p role="alert" className="text-[11px] text-rose-400">{applyError}</p>}
+        <button
+          type="button"
+          disabled={disabled || !validation.valid || 'error' in customLayout}
+          onClick={handleApply}
+          className="w-full px-3 py-2 rounded-lg text-xs font-semibold bg-[var(--color-accent-danger)] text-[var(--color-accent-contrast)] disabled:opacity-40"
+        >
+          Apply Configuration
+        </button>
+      </section>
 
       {/* Live Ad-hoc Allocate & Deallocate */}
       <div className="pt-2 border-t border-[var(--color-border-subtle)] space-y-2">

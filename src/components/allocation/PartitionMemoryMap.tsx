@@ -142,7 +142,11 @@ export const PartitionMemoryMap: React.FC<PartitionMemoryMapProps> = ({
               </div>
 
               {/* Memory Bar */}
-              <div className="h-14 w-full rounded-xl overflow-hidden flex border border-[var(--color-border-medium)] bg-[var(--color-bg-base)]">
+              <div
+                role="group"
+                aria-label={`${title} memory map`}
+                className="h-14 w-full rounded-xl flex border border-[var(--color-border-medium)] bg-[var(--color-bg-base)]"
+              >
                 {st.partitions.map((part) => {
                   const pct = (part.size / totalKb) * 100;
                   const isNewlyAllocated =
@@ -164,8 +168,9 @@ export const PartitionMemoryMap: React.FC<PartitionMemoryMapProps> = ({
                     return (
                       <div
                         key={part.id}
-                        style={{ width: `${Math.max(pct, 1.2)}%` }}
+                        style={{ flex: `0 0 ${pct}%`, minWidth: 0 }}
                         className="h-full bg-slate-500/20 border-r border-[var(--color-border-subtle)] flex flex-col items-center justify-center text-[9px] font-mono text-[var(--color-text-subtle)] select-none"
+                        aria-label={`Reserved memory, ${part.size} KB, addresses ${part.startAddress} to ${part.startAddress + part.size - 1}`}
                         title={`Reserved (${part.label ?? 'OS'}): ${part.startAddress}–${part.startAddress + part.size} KB (${part.size} KB)`}
                       >
                         {pct >= 4 ? `${part.size}K` : ''}
@@ -180,7 +185,8 @@ export const PartitionMemoryMap: React.FC<PartitionMemoryMapProps> = ({
                         type="button"
                         onClick={() => part.processId && onDeallocateProcess?.(part.processId)}
                         style={{
-                          width: `${Math.max(pct, 2.5)}%`,
+                          flex: `0 0 ${pct}%`,
+                          minWidth: 0,
                           borderTop: `3px solid ${part.color ?? 'var(--color-accent-primary)'}`,
                           backgroundColor: isNewlyAllocated
                             ? `${part.color ?? '#10b981'}35`
@@ -189,6 +195,7 @@ export const PartitionMemoryMap: React.FC<PartitionMemoryMapProps> = ({
                         className={`h-full border-r border-black/20 flex flex-col items-center justify-center px-1 text-[10px] font-mono transition-all duration-300 hover:brightness-110 cursor-pointer ${
                           isNewlyAllocated ? 'ring-2 ring-inset ring-emerald-400' : ''
                         }`}
+                        aria-label={`${part.processId}: ${part.size} KB allocated, requested ${part.requestedSize} KB`}
                         title={`${part.processId}: ${part.size} KB allocated (req: ${part.requestedSize} KB) @ ${part.startAddress}–${part.startAddress + part.size} KB. Click to free.`}
                       >
                         <span className="font-bold text-[var(--color-text-main)] truncate max-w-full">
@@ -205,13 +212,14 @@ export const PartitionMemoryMap: React.FC<PartitionMemoryMapProps> = ({
                   return (
                     <div
                       key={part.id}
-                      style={{ width: `${Math.max(pct, 2.5)}%` }}
+                      style={{ flex: `0 0 ${pct}%`, minWidth: 0 }}
                       className={`h-full border-r border-dashed border-[var(--color-border-medium)] flex flex-col items-center justify-center px-1 text-[10px] font-mono transition-all duration-300 ${
                         isCoalescedHighlight
                           ? 'bg-amber-500/15 text-amber-500 ring-1 ring-inset ring-amber-400/60'
                           : 'bg-[var(--color-bg-base)] text-[var(--color-text-subtle)]'
                       }`}
-                      title={`Free Hole: ${part.size} KB @ ${part.startAddress}–${part.startAddress + part.size} KB`}
+                      aria-label={`${part.label ? `${part.label}, ` : ''}Free memory hole, ${part.size} KB, addresses ${part.startAddress} to ${part.startAddress + part.size - 1}`}
+                      title={`${part.label ?? 'Free Hole'}: ${part.size} KB @ ${part.startAddress}–${part.startAddress + part.size} KB`}
                     >
                       <span className="flex items-center gap-0.5 truncate max-w-full">
                         {isCoalescedHighlight && <Combine className="w-2.5 h-2.5 shrink-0" />}
@@ -224,6 +232,21 @@ export const PartitionMemoryMap: React.FC<PartitionMemoryMapProps> = ({
                   );
                 })}
               </div>
+              <details className="text-[10px] text-[var(--color-text-muted)]">
+                <summary className="cursor-pointer select-none">{title} partition details</summary>
+                <ul className="mt-1 grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-1">
+                  {st.partitions.map((part) => (
+                    <li key={part.id} className="font-mono break-words">
+                      {part.status === 'ALLOCATED'
+                        ? `${part.processId}: ${part.size} KB allocated`
+                        : part.status === 'RESERVED'
+                          ? `${part.label ?? 'Reserved'}: ${part.size} KB reserved`
+                          : `${part.label ?? 'Free'}: ${part.size} KB free`}
+                      {' '}@ {part.startAddress}–{part.startAddress + part.size - 1} KB
+                    </li>
+                  ))}
+                </ul>
+              </details>
             </div>
           );
         })}

@@ -23,6 +23,7 @@ describe('AllocationEngine & Operation Stream Parser', () => {
       expect(parseAllocationStream('X P1 100').valid).toBe(false);
       expect(parseAllocationStream('A P1 0').valid).toBe(false);
       expect(parseAllocationStream('A P1 abc').valid).toBe(false);
+      expect(parseAllocationStream('A P1 9007199254740992').valid).toBe(false);
       expect(parseAllocationStream('D P1 100').valid).toBe(false);
     });
   });
@@ -122,6 +123,176 @@ describe('AllocationEngine & Operation Stream Parser', () => {
       const adHoc = engine.submitOperation({ type: 'ALLOCATE', processId: 'PX', size: 64 });
       expect(adHoc.firstFit.success).toBe(true);
       expect(engine.getActiveProcessIds()).toContain('PX');
+    });
+
+    it('applies one validated custom initial layout and operation stream to all strategies', () => {
+      const engine = new AllocationEngine(ALLOCATION_PRESETS[0]);
+      const result = engine.configureCustom({
+        totalMemoryKb: 300,
+        initialPartitions: [
+          {
+            id: 'free-100',
+            startAddress: 0,
+            size: 100,
+            status: 'FREE',
+            processId: null,
+            requestedSize: null,
+          },
+          {
+            id: 'reserved-50',
+            startAddress: 100,
+            size: 50,
+            status: 'RESERVED',
+            processId: null,
+            requestedSize: null,
+            label: 'OS',
+          },
+        ],
+        operations: [{ type: 'ALLOCATE', processId: 'P1', size: 80 }],
+      });
+
+      expect(result.success).toBe(true);
+      const initial = engine.getInitialPartitions();
+      expect(initial.map(({ startAddress, size, status }) => ({ startAddress, size, status }))).toEqual([
+        { startAddress: 0, size: 100, status: 'FREE' },
+        { startAddress: 100, size: 50, status: 'RESERVED' },
+        { startAddress: 150, size: 150, status: 'FREE' },
+      ]);
+      expect(initial[2]).toMatchObject({
+        id: 'custom-free-remainder',
+        label: 'Unassigned remainder',
+        size: 150,
+      });
+      const initialState = engine.getState();
+      expect(initialState.firstFit.partitions).toEqual(initial);
+      expect(initialState.bestFit.partitions).toEqual(initial);
+      expect(initialState.worstFit.partitions).toEqual(initial);
+      expect(engine.getOperations()).toEqual([{ type: 'ALLOCATE', processId: 'P1', size: 80 }]);
+      const step = engine.stepForward();
+      expect(step?.firstFit.success).toBe(true);
+      expect(step?.bestFit.success).toBe(true);
+      expect(step?.worstFit.success).toBe(true);
+      expect(step?.operation).toEqual({ type: 'ALLOCATE', processId: 'P1', size: 80 });
+    });
+
+    it('preserves free partition sizes and allocates from a separate remainder in every strategy', () => {
+      const engine = new AllocationEngine(ALLOCATION_PRESETS[0]);
+      const result = engine.configureCustom({
+        totalMemoryKb: 300,
+        initialPartitions: [
+          {
+            id: 'free-100',
+            startAddress: 0,
+            size: 100,
+            status: 'FREE',
+            processId: null,
+            requestedSize: null,
+          },
+          {
+            id: 'free-50',
+            startAddress: 100,
+            size: 50,
+            status: 'FREE',
+            processId: null,
+            requestedSize: null,
+          },
+        ],
+        operations: [{ type: 'ALLOCATE', processId: 'P1', size: 120 }],
+      });
+
+      expect(result.success).toBe(true);
+      const initial = engine.getInitialPartitions();
+      expect(initial.map(({ id, startAddress, size, status, label }) => ({
+        id,
+        startAddress,
+        size,
+        status,
+        label,
+      }))).toEqual([
+        { id: 'free-100', startAddress: 0, size: 100, status: 'FREE', label: undefined },
+        { id: 'free-50', startAddress: 100, size: 50, status: 'FREE', label: undefined },
+        {
+          id: 'custom-free-remainder',
+          startAddress: 150,
+          size: 150,
+          status: 'FREE',
+          label: 'Unassigned remainder',
+        },
+      ]);
+
+      const initialState = engine.getState();
+      expect(initialState.firstFit.partitions).toEqual(initial);
+      expect(initialState.bestFit.partitions).toEqual(initial);
+      expect(initialState.worstFit.partitions).toEqual(initial);
+      expect(engine.getOperations()).toEqual([{ type: 'ALLOCATE', processId: 'P1', size: 120 }]);
+
+      const step = engine.stepForward();
+      expect(step?.firstFit.allocatedStartAddress).toBe(150);
+      expect(step?.bestFit.allocatedStartAddress).toBe(150);
+      expect(step?.worstFit.allocatedStartAddress).toBe(150);
+      for (const strategy of ['firstFit', 'bestFit', 'worstFit'] as const) {
+        const allocated = engine.getState()[strategy].partitions.find(
+          (partition) => partition.processId === 'P1'
+        );
+        expect(allocated).toMatchObject({ startAddress: 150, size: 120, requestedSize: 120 });
+      }
+    });
+
+    it('assigns a stable unique ID to the remainder when a user partition uses its base ID', () => {
+      const options = {
+        totalMemoryKb: 100,
+        initialPartitions: [
+          {
+            id: 'custom-free-remainder',
+            startAddress: 0,
+            size: 50,
+            status: 'FREE' as const,
+            processId: null,
+            requestedSize: null,
+          },
+        ],
+      };
+      const first = new AllocationEngine(ALLOCATION_PRESETS[0]);
+      const second = new AllocationEngine(ALLOCATION_PRESETS[0]);
+      expect(first.configureCustom(options).success).toBe(true);
+      expect(second.configureCustom(options).success).toBe(true);
+
+      expect(first.getInitialPartitions().map(({ id, size, label }) => ({ id, size, label }))).toEqual([
+        { id: 'custom-free-remainder', size: 50, label: undefined },
+        { id: 'custom-free-remainder-1', size: 50, label: 'Unassigned remainder' },
+      ]);
+      expect(second.getInitialPartitions()).toEqual(first.getInitialPartitions());
+    });
+
+    it('rejects empty and oversized custom layouts without changing engine state', () => {
+      const engine = new AllocationEngine(ALLOCATION_PRESETS[0]);
+      const initialBefore = engine.getInitialPartitions();
+      const operationsBefore = engine.getOperations();
+      const empty = engine.configureCustom({
+        totalMemoryKb: 100,
+        initialPartitions: [],
+        operations: [],
+      });
+      expect(empty.success).toBe(false);
+      expect(empty.error).toContain('At least one initial partition');
+
+      const oversized = engine.configureCustom({
+        totalMemoryKb: 100,
+        initialPartitions: [
+          {
+            id: 'too-large',
+            startAddress: 0,
+            size: 101,
+            status: 'FREE',
+            processId: null,
+            requestedSize: null,
+          },
+        ],
+      });
+      expect(oversized.success).toBe(false);
+      expect(oversized.error).toContain('cannot exceed');
+      expect(engine.getInitialPartitions()).toEqual(initialBefore);
+      expect(engine.getOperations()).toEqual(operationsBefore);
     });
   });
 });

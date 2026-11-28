@@ -107,6 +107,43 @@ describe('SegmentationEngine State Machine & Reversible History', () => {
     expect(holes[0].size).toBe(2048);
   });
 
+  it('rejects RAM shrinking below a segment start or end without changing state', () => {
+    const engine = new SegmentationEngine();
+    engine.translateAddress('(0, 500)');
+    const originalConfig = engine.getConfig();
+    const originalSegments = engine.getSegments();
+    const originalHistory = engine.getHistory();
+    const originalStats = engine.getStats();
+
+    const belowStart = engine.setConfig({ ...originalConfig, ramSizeKb: 19 });
+    expect(belowStart.success).toBe(false);
+    expect(belowStart.error).toContain('Cannot reduce RAM');
+    expect(engine.getConfig()).toEqual(originalConfig);
+    expect(engine.getSegments()).toEqual(originalSegments);
+    expect(engine.getHistory()).toEqual(originalHistory);
+    expect(engine.getStats()).toEqual(originalStats);
+
+    const belowEnd = engine.setConfig({ ...originalConfig, ramSizeKb: 22 });
+    expect(belowEnd.success).toBe(false);
+    expect(engine.getConfig()).toEqual(originalConfig);
+  });
+
+  it('rejects shrinking below multiple segments and keeps the RAM map bounded', () => {
+    const segments = [
+      { id: 0, name: 'Low', base: 1000, limit: 1000, isValid: true, accessCount: 0 },
+      { id: 1, name: 'Middle', base: 12000, limit: 3000, isValid: true, accessCount: 0 },
+      { id: 2, name: 'High', base: 20000, limit: 2000, isValid: true, accessCount: 0 },
+    ];
+    const engine = new SegmentationEngine(DEFAULT_SEGMENTATION_CONFIG, segments);
+    const beforeHistory = engine.getHistory();
+    const result = engine.setConfig({ logicalSpaceKb: 64, ramSizeKb: 10 });
+    expect(result.success).toBe(false);
+    expect(engine.getConfig()).toEqual(DEFAULT_SEGMENTATION_CONFIG);
+    expect(engine.getHistory()).toEqual(beforeHistory);
+    expect(engine.getMemoryMap().every((block) => block.startAddress >= 0 && block.endAddress < 32768)).toBe(true);
+    expect(engine.getFreeHoles().every((hole) => hole.size >= 0)).toBe(true);
+  });
+
   it('fully reverses simulation state on stepBackward including memory map, segments, and stats', () => {
     const engine = new SegmentationEngine();
     engine.setReferenceStream(['(0, 500)', '(2, 3000)', '(1, 100)']);

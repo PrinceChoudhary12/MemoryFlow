@@ -3,6 +3,7 @@ import type {
   SegmentTranslationStep,
   PhysicalMemoryBlock,
 } from './types';
+import { parseStrictAddressInteger } from '../addressParsing';
 
 export function toHex(value: number, padding = 4): string {
   if (value < 0 || isNaN(value)) return '0x0000';
@@ -26,41 +27,33 @@ export function parseLogicalAddress(input: string): {
     return { segmentId: null, offset: null, error: 'Address input cannot be empty.' };
   }
 
-  // Strip parentheses and brackets
-  const cleaned = trimmed.replace(/^[(\[]|[)\]]$/g, '').trim();
-
-  // Handle s=X, d=Y format
-  if (cleaned.includes('s=') || cleaned.includes('d=')) {
-    const sMatch = cleaned.match(/s\s*=\s*([0-9a-fA-FxX]+)/i);
-    const dMatch = cleaned.match(/d\s*=\s*([0-9a-fA-FxX]+)/i);
-    if (sMatch && dMatch) {
-      const s = parseInt(sMatch[1], sMatch[1].startsWith('0x') ? 16 : 10);
-      const d = parseInt(dMatch[1], dMatch[1].startsWith('0x') ? 16 : 10);
-      if (!isNaN(s) && !isNaN(d)) {
-        return { segmentId: s, offset: d };
-      }
-    }
+  let cleaned = trimmed;
+  if (trimmed.startsWith('(') && trimmed.endsWith(')')) {
+    cleaned = trimmed.slice(1, -1).trim();
+  } else if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+    cleaned = trimmed.slice(1, -1).trim();
+  } else if (
+    trimmed.startsWith('(') ||
+    trimmed.startsWith('[') ||
+    trimmed.endsWith(')') ||
+    trimmed.endsWith(']')
+  ) {
+    return { segmentId: null, offset: null, error: 'Mismatched address brackets.' };
   }
 
-  // Handle delimiter: comma, colon, or whitespace
-  const parts = cleaned.split(/[,:]|\s+/).filter(Boolean);
-  if (parts.length === 2) {
-    const sPart = parts[0].trim();
-    const dPart = parts[1].trim();
+  const prefixed = cleaned.match(/^s\s*=\s*([^,\s]+)\s*,\s*d\s*=\s*(\S+)$/i);
+  const pair = cleaned.match(/^([^,\s:]+)\s*(,|:|\s)\s*([^,\s:]+)$/);
+  const parts = prefixed ? [prefixed[1], prefixed[2]] : pair ? [pair[1], pair[3]] : null;
 
-    const segmentId = sPart.startsWith('0x') ? parseInt(sPart, 16) : parseInt(sPart, 10);
-    const offset = dPart.startsWith('0x') ? parseInt(dPart, 16) : parseInt(dPart, 10);
-
-    if (isNaN(segmentId)) {
-      return { segmentId: null, offset: null, error: `Invalid Segment ID: "${sPart}".` };
+  if (parts) {
+    const segmentId = parseStrictAddressInteger(parts[0]);
+    const offset = parseStrictAddressInteger(parts[1]);
+    if (segmentId === null) {
+      return { segmentId: null, offset: null, error: `Invalid Segment ID: "${parts[0]}".` };
     }
-    if (isNaN(offset)) {
-      return { segmentId: null, offset: null, error: `Invalid Offset: "${dPart}".` };
+    if (offset === null) {
+      return { segmentId: null, offset: null, error: `Invalid Offset: "${parts[1]}".` };
     }
-    if (segmentId < 0 || offset < 0) {
-      return { segmentId: null, offset: null, error: 'Segment ID and Offset must be non-negative.' };
-    }
-
     return { segmentId, offset };
   }
 
@@ -84,7 +77,7 @@ export function parseAddressStream(streamText: string): string[] {
   if (!trimmed) return [];
 
   // 1. Match bracketed/parenthesized tokens: (s, d) or [s, d]
-  const bracketMatches = trimmed.match(/[(\[][^)\n\r\]]+[)\]]/g);
+  const bracketMatches = trimmed.match(/\([^)\n\r]+\)|\x5B[^\x5D\n\r]+\x5D/g);
   if (bracketMatches && bracketMatches.length > 0) {
     return bracketMatches.map((m) => m.trim());
   }
@@ -139,6 +132,29 @@ export function translateSegmentAddress(
   rawInput: string
 ): SegmentTranslationStep {
   const timestamp = Date.now();
+  const invalidNumericArguments: string[] = [];
+  if (!Number.isSafeInteger(segmentId) || segmentId < 0) invalidNumericArguments.push('segment ID');
+  if (!Number.isSafeInteger(offset) || offset < 0) invalidNumericArguments.push('offset');
+  if (!Number.isSafeInteger(ramSizeBytes) || ramSizeBytes <= 0) invalidNumericArguments.push('RAM size');
+  if (!Number.isSafeInteger(stepNumber) || stepNumber <= 0) invalidNumericArguments.push('step number');
+
+  if (invalidNumericArguments.length > 0) {
+    return {
+      stepNumber,
+      rawInput,
+      segmentId,
+      segmentName: 'Invalid',
+      offset,
+      base: null,
+      limit: null,
+      physicalAddress: null,
+      physicalAddressHex: null,
+      status: 'INVALID_INPUT',
+      explanation: `Invalid numeric ${invalidNumericArguments.join(', ')}. Address values and RAM size must be safe integers within their valid ranges.`,
+      timestamp,
+    };
+  }
+
   const segment = segments.find((s) => s.id === segmentId && s.isValid);
 
   // Check 1: Segment exists in Segment Table
@@ -155,6 +171,31 @@ export function translateSegmentAddress(
       physicalAddressHex: null,
       status: 'FAULT_INVALID_SEGMENT',
       explanation: `SEGMENTATION FAULT (Invalid Segment): Segment ${segmentId} does not exist in the active Segment Table. CPU hardware interrupt triggered.`,
+      timestamp,
+    };
+  }
+
+  const segmentEnd = segment.base + segment.limit;
+  if (
+    !Number.isSafeInteger(segment.base) ||
+    !Number.isSafeInteger(segment.limit) ||
+    segment.base < 0 ||
+    segment.limit <= 0 ||
+    !Number.isSafeInteger(segmentEnd) ||
+    segmentEnd > ramSizeBytes
+  ) {
+    return {
+      stepNumber,
+      rawInput,
+      segmentId,
+      segmentName: segment.name,
+      offset,
+      base: segment.base,
+      limit: segment.limit,
+      physicalAddress: null,
+      physicalAddressHex: null,
+      status: 'INVALID_INPUT',
+      explanation: `Segment "${segment.name}" has an invalid or out-of-RAM range.`,
       timestamp,
     };
   }
@@ -220,6 +261,10 @@ export function buildMemoryMap(
   segments: Segment[],
   ramSizeBytes: number
 ): PhysicalMemoryBlock[] {
+  if (!Number.isSafeInteger(ramSizeBytes) || ramSizeBytes <= 0) {
+    throw new RangeError('RAM size must be a positive safe integer.');
+  }
+
   // Sort valid segments by base address
   const activeSegments = segments
     .filter((s) => s.isValid)
@@ -229,6 +274,19 @@ export function buildMemoryMap(
   let currentPtr = 0;
 
   for (const seg of activeSegments) {
+    const endExclusive = seg.base + seg.limit;
+    if (
+      !Number.isSafeInteger(seg.base) ||
+      !Number.isSafeInteger(seg.limit) ||
+      seg.base < 0 ||
+      seg.limit <= 0 ||
+      !Number.isSafeInteger(endExclusive) ||
+      endExclusive > ramSizeBytes ||
+      seg.base < currentPtr
+    ) {
+      throw new RangeError(`Segment "${seg.name}" has an invalid or overlapping RAM range.`);
+    }
+
     if (seg.base > currentPtr) {
       // Free hole before this segment
       blocks.push({

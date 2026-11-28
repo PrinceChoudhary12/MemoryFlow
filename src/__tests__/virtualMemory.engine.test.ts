@@ -3,6 +3,7 @@ import {
   VirtualMemoryEngine,
   DEFAULT_VM_CONFIG,
 } from '../core/virtualMemory/virtualMemoryEngine';
+import { calculateEat } from '../core/virtualMemory/eatCalculator';
 
 describe('VirtualMemoryEngine Demand Paging & Interrupt Cycle', () => {
   it('initializes with default 16 virtual pages (all invalid) and 4 physical frames', () => {
@@ -162,5 +163,26 @@ describe('VirtualMemoryEngine Demand Paging & Interrupt Cycle', () => {
     expect(step.status).toBe('INVALID_ADDRESS');
     expect(step.pageNumber).toBe(-1);
     expect(step.physicalAddress).toBeNull();
+  });
+
+  it('keeps dirty-writeback EAT inputs aligned with the engine calculation', () => {
+    const engine = new VirtualMemoryEngine();
+    engine.translateAddress('0x0000:W');
+    engine.translateAddress('0x1000:R');
+    engine.translateAddress('0x2000:R');
+    engine.translateAddress('0x3000:R');
+    engine.translateAddress('0x4000:R');
+
+    const stats = engine.getStats();
+    const config = engine.getConfig();
+    const expected = calculateEat(
+      stats.pageFaults / stats.totalAccesses,
+      config.memoryAccessTimeNs,
+      config.pageFaultServiceTimeNs,
+      stats.dirtyWritebacks / stats.pageFaults,
+      config.dirtyWritebackOverheadNs
+    );
+    expect(stats.effectiveAccessTimeNs).toBe(expected.eatNs);
+    expect(stats.dirtyWritebacks).toBe(1);
   });
 });

@@ -84,7 +84,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         <div className="relative z-10 max-w-3xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-[var(--color-bg-base)] text-[var(--color-accent-primary)] border border-[var(--color-border-medium)] mb-4">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Operating Systems Visual Laboratory • CA2 Evaluation</span>
+            <span>Operating Systems Visual Laboratory</span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[var(--color-text-main)] mb-3">

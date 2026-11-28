@@ -48,6 +48,28 @@ describe('Virtual Memory EAT & Address Parsing', () => {
     expect(parseVmAddress('invalid').error).toBeDefined();
   });
 
+  it('rejects partial, malformed, negative, decimal, and unsafe virtual addresses', () => {
+    for (const address of [
+      '12.5',
+      '12abc',
+      '-1',
+      '0xGG',
+      '0x',
+      'Infinity',
+      'NaN',
+      '9007199254740992',
+      '',
+    ]) {
+      expect(parseVmAddress(address).address, address).toBeNull();
+      expect(parseVmAddress(address).error, address).toBeDefined();
+    }
+
+    expect(parseVmAddress('0x1000').address).toBe(4096);
+    expect(parseVmAddress('4096').address).toBe(4096);
+    expect(parseVmAddress('1A2B').address).toBe(6699);
+    expect(parseVmAddress('FACE').address).toBe(64206);
+  });
+
   it('formats hex addresses consistently with zero-padding', () => {
     expect(toHex(4096, 4)).toBe('0x1000');
     expect(toHex(0, 4)).toBe('0x0000');

@@ -37,11 +37,18 @@ export const SegmentTableView: React.FC<SegmentTableViewProps> = ({
 
   const saveEdit = (id: number) => {
     if (!onUpdateSegment) return;
-    const base = parseInt(editBase, 10);
-    const limit = parseInt(editLimit, 10);
+    const base = Number(editBase);
+    const limit = Number(editLimit);
 
-    if (isNaN(base) || isNaN(limit) || base < 0 || limit <= 0) {
-      setEditError('Base and Limit must be positive integers.');
+    if (
+      !editBase.trim() ||
+      !editLimit.trim() ||
+      !Number.isSafeInteger(base) ||
+      !Number.isSafeInteger(limit) ||
+      base < 0 ||
+      limit <= 0
+    ) {
+      setEditError('Base and Limit must be safe integers; Base must be non-negative and Limit positive.');
       return;
     }
 

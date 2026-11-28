@@ -1,3 +1,5 @@
+import { parseStrictAddressInteger } from '../addressParsing';
+
 /**
  * MemoryFlow — Effective Access Time (EAT) & Latency Formatter
  * Pure TypeScript Mathematical Operations
@@ -110,17 +112,9 @@ export function parseVmAddress(input: string): {
 
   // Parse address value (Hex or Decimal)
   const cleanedAddress = addressPart.trim();
-  let parsed: number;
+  const parsed = parseStrictAddressInteger(cleanedAddress, true);
 
-  if (cleanedAddress.startsWith('0x') || cleanedAddress.startsWith('0X')) {
-    parsed = parseInt(cleanedAddress, 16);
-  } else if (/^\d+$/.test(cleanedAddress)) {
-    parsed = parseInt(cleanedAddress, 10);
-  } else {
-    parsed = parseInt(cleanedAddress, 16);
-  }
-
-  if (isNaN(parsed) || parsed < 0) {
+  if (parsed === null) {
     return {
       address: null,
       accessType,

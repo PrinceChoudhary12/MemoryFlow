@@ -61,6 +61,9 @@ describe('Paging Translator & Math Functions', () => {
 
     const negative = splitAddress(-10, config);
     expect(negative.isValid).toBe(false);
+    expect(splitAddress(Number.NaN, config).isValid).toBe(false);
+    expect(splitAddress(Number.POSITIVE_INFINITY, config).isValid).toBe(false);
+    expect(splitAddress(12.5, config).isValid).toBe(false);
   });
 
   it('computes exact physical address from frame and offset', () => {
@@ -75,10 +78,25 @@ describe('Paging Translator & Math Functions', () => {
     expect(parseAddress('0x1000').address).toBe(4096);
     expect(parseAddress('1000').address).toBe(1000);
     expect(parseAddress('0x4844').address).toBe(18500);
+    expect(parseAddress('1A2B').address).toBe(6699);
+    expect(parseAddress('FACE').address).toBe(64206);
 
-    expect(parseAddress('invalid').error).toBeDefined();
-    expect(parseAddress('-500').error).toBeDefined();
-    expect(parseAddress('').error).toBeDefined();
+    for (const address of [
+      'invalid',
+      '12.5',
+      '12abc',
+      '-1',
+      '0xGG',
+      '0x',
+      'Infinity',
+      'NaN',
+      '9007199254740992',
+      '',
+      '   ',
+    ]) {
+      expect(parseAddress(address).address, address).toBeNull();
+      expect(parseAddress(address).error, address).toBeDefined();
+    }
   });
 
   it('formats hex and binary strings with proper padding', () => {

@@ -77,9 +77,11 @@ export const SegmentationPage: React.FC<SegmentationPageProps> = ({ onBack }) =>
 
   const handleUpdateConfig = (newConfig: SegmentationConfig) => {
     setIsPlaying(false);
-    engine.setConfig(newConfig);
+    const result = engine.setConfig(newConfig);
+    if (!result.success) return result;
     setConfig(newConfig);
     syncWithEngine();
+    return result;
   };
 
   const handleAddSegment = (newSegment: Omit<Segment, 'accessCount'>) => {

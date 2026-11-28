@@ -2,12 +2,12 @@
 
 **Repository:** [PrinceChoudhary12/MemoryFlow](https://github.com/PrinceChoudhary12/MemoryFlow)  
 **Latest Released Version:** `v0.8.0`
-**Current Development Milestone:** `v0.8.0` — GitHub Pages deployment (`CONFIGURATION PREPARED — NOT YET COMMITTED OR DEPLOYED`)
+**Current Development Milestone:** `v0.9.0` release candidate — checks passed; publication pending
 **Current Branch:** `main`  
 **Latest Release Commit:** `99d8b7a1ca395c6de9f2e47fe2c9eb45e066ef02`
 **Latest Release Tag:** Annotated `v0.8.0`
 **Target Release:** `v1.0.0 Production Release`  
-**Last Updated:** November 2026
+**Last Updated:** November 28, 2026
 
 ---
 
@@ -25,8 +25,8 @@ All milestones through v0.8.0 are released. `COMPLETED / RELEASED` means a miles
 | **v0.6.0** | Dynamic Memory Allocation Studio | `COMPLETED / RELEASED` | `v0.6.0` | First/Best/Worst Fit, hole coalescing, partition splitting; release commit `b4f1ba2` |
 | **v0.7.0** | Analytics, Benchmark & Export | `COMPLETED / RELEASED` | `v0.7.0` | Engine-backed analytics, deterministic benchmarks, Recharts, JSON/CSV, print-ready reports; final headless PDF QA verified all five reports, 23 SVG marks, and 42 history events |
 | **v0.8.0** | Accessibility, Responsive Design & UI Reliability | `COMPLETED / RELEASED` | `v0.8.0` | Labeled and validated forms, keyboard states/focus, simulation announcements, theme contrast checks, 7-view responsive matrix, and grayscale print-media verification; release commit `99d8b7a` |
-| **v0.9.0** | Complete Quality Assurance | `PENDING` | `v0.9.0` | Planned: comprehensive tests, coverage assessment, lint cleanup |
-| **v1.0.0** | Production Deployment | `PENDING` | `v1.0.0` | Planned: static hosting, deployment verification, final release audit |
+| **v0.9.0** | Compliance, Validation & Visualization | `RELEASE CANDIDATE` | `v0.9.0` | Six compliance improvements; 114 unit tests and 19 browser tests passed; build passed; lint has 20 warnings |
+| **v1.0.0** | Production Release & Final Audit | `PENDING` | `v1.0.0` | Planned: final release audit and versioned release; GitHub Pages production site is already live |
 
 ---
 
@@ -89,12 +89,16 @@ All milestones through v0.8.0 are released. `COMPLETED / RELEASED` means a miles
 ## 3. Current Development & Upcoming Milestones
 
 - **Latest released:** `v0.8.0`, tagged on `main`; release commit `99d8b7a1ca395c6de9f2e47fe2c9eb45e066ef02`.
-- **Current milestone:** GitHub Pages deployment configuration for released v0.8.0 is prepared in the worktree. The changes are not committed; Pages is not enabled and no workflow run or deployment has occurred.
-- **Upcoming:** v0.9.0 quality assurance and v1.0.0 production deployment remain planned. GitHub Pages is the selected provider for the v0.8.0 deployment.
+- **Current release candidate:** v0.9.0 implements the six compliance improvements below. Fresh local checks passed; publication and deployment of this release candidate are pending.
+- **Production site before v0.9.0:** The previously deployed GitHub Pages site responds successfully at [https://princechoudhary12.github.io/MemoryFlow/](https://princechoudhary12.github.io/MemoryFlow/). This does not verify deployment of v0.9.0.
+- **Upcoming:** v1.0.0 final release audit remains planned.
 
 ---
 
 ## 4. Test Results, QA & Build Status
+
+### Historical v0.8.0 release QA
+
 - **Unit tests (`npm test`):** 102 passed across 16 files. Vitest excludes the independent Playwright browser suite.
 - **Browser QA (`npm run test:e2e`):** 14 passed. Coverage includes Dashboard, all five labs, and Analytics at 320, 390, 768, 1024, and 1440px; labeled visible form fields; associated validation errors; selected-state semantics; visible keyboard focus and theme-popover Escape behavior; simulation announcements in all five labs; all four theme palettes; and Analytics print media.
 - **Responsive fixes:** reduced narrow-header pressure, wrapped the Segmentation title, stacked narrow address controls, and made intentional horizontal scrollers named and keyboard-focusable. No page-level overflow was detected in the matrix.
@@ -102,12 +106,22 @@ All milestones through v0.8.0 are released. `COMPLETED / RELEASED` means a miles
 - **Analytics print-media verification:** Chromium print emulation rendered all five reports, 23 outlined SVG tracks, 16 non-zero outlined bars, normalized metric tables, configurations, workloads, and 42 history events. Charts use grayscale print styling. This was print-media emulation; a new PDF was not generated for v0.8.0 and native print-dialog behavior was not tested.
 - **Performance sample:** one local headless Chromium run measured `DOMContentLoaded` at 291.5 ms, `load` at 292.3 ms, and Analytics readiness at 421.5 ms after navigation. These are environment-specific observations, not performance targets; no optimization was made without a comparable baseline or user-facing performance issue.
 - **TypeScript and production build (`npm run build`):** passed. Vite reports a 505.70 kB main JavaScript chunk (127.98 kB gzip) above its 500 kB advisory threshold; Analytics is 381.53 kB (109.83 kB gzip), and the snapshot chunk is 2.63 kB (0.98 kB gzip). This advisory is recorded for follow-up, not a build failure.
-- **GitHub Pages base-path verification:** both the default root-based build and `npm run build -- --mode github-pages` passed. The Pages build emitted `/MemoryFlow/`-prefixed script, CSS, and favicon paths. A local production preview at `/MemoryFlow/` loaded successfully, and all seven navigation views were selected without local asset errors. This verifies the build locally only; Pages has not been enabled and no deployment was performed.
+- **GitHub Pages base-path verification:** both the default root-based build and `npm run build -- --mode github-pages` passed. The Pages build emitted `/MemoryFlow/`-prefixed script, CSS, and favicon paths. A local production preview at `/MemoryFlow/` loaded successfully, and all seven navigation views were selected without local asset errors. The previously verified production site is [https://princechoudhary12.github.io/MemoryFlow/](https://princechoudhary12.github.io/MemoryFlow/).
 - **Lint (`npm run lint`):** 0 errors and 22 warnings, matching the established 22-warning baseline.
-- **Git checks:** `git diff --check` passed. No simulation-core files were changed; the existing engine and Analytics export/print tests passed.
+- **Git checks:** `git diff --check` passed. At the v0.8.0 release snapshot, no simulation-core files were changed; the existing engine and Analytics export/print tests passed. The current unreleased work does modify simulation-core files without replacing simulation algorithms.
 - **Screen-reader limitation:** no manual screen-reader audit was performed. Automated assertions cover accessible names, landmarks, labels, states, and live regions, but do not establish actual assistive-technology behavior.
 - **Historical v0.7.0 PDF QA:** headless Chrome CDP produced and inspected the nine-page PDF; five reports, 23 SVG marks, and 42 events were verified. This is v0.7.0 evidence, not a newly generated v0.8.0 PDF.
-- **Release/deployment operations:** the v0.8.0 release commit, annotated tag, and push are complete. GitHub Pages configuration changes are currently uncommitted; Pages has not been enabled and no workflow run or deployment has occurred. Git writes and production deployment require separate explicit approval.
+- **Release/deployment operations:** the v0.8.0 release commit, annotated tag, and push are complete. GitHub Pages is enabled and the production site is live at the URL above. No commit, tag, workflow run, or deployment was made for the current unreleased work.
+
+### v0.9.0 release-candidate verification
+
+- **Unit tests (`npm test`):** 114 passed across 16 files.
+- **Browser tests (`npm run test:e2e`):** 19 passed. Coverage includes state updates in all five labs, the custom allocation remainder, FIFO/LRU rendered aggregate metrics, accessibility, responsive layouts, and Analytics.
+- **TypeScript and production build (`npm run build`):** passed. The main minified chunk is 517.59 kB (130.66 kB gzip), above Vite's 500 kB advisory threshold; this is a warning, not a build failure.
+- **Lint (`npm run lint`):** 0 errors and 20 warnings; warnings are retained and reported.
+- **Git check (`git diff --check`):** passed.
+- **Pre-release site check:** the existing production URL returned HTTP 200 before release. It is not evidence that v0.9.0 has deployed.
+- **Remaining QA limits:** manual screen-reader testing and fresh PDF generation/inspection remain unverified.
 
 ## 5. v0.8.0 Implementation Summary
 
@@ -120,8 +134,27 @@ All milestones through v0.8.0 are released. `COMPLETED / RELEASED` means a miles
 - Added theme-specific semantic status colors and browser-computed contrast checks; print-only charts are grayscale with visible SVG outlines and textual values.
 - Added a browser performance sample for page startup and Analytics readiness. Measurements are recorded without introducing unsupported performance budgets.
 
+## 6. v0.9.0 Compliance, Validation & Visualization
+
+The v0.9.0 release candidate does not change historical v0.8.0 results. No simulation algorithms were replaced, but simulation-core parsing, validation, configuration, and EAT files have been modified.
+
+- Custom allocation layouts preserve every entered partition size; any unused capacity is a separate, stable-ID `Unassigned remainder` free partition shared by First-Fit, Best-Fit, and Worst-Fit.
+- Paging, segmentation, and virtual-memory address input uses strict integer parsing. The exported segmentation translator also rejects invalid direct numeric arguments.
+- Segmentation RAM resizing rejects ranges that would extend beyond RAM without mutating the existing config or history.
+- Allocation and segmentation memory maps preserve proportional widths and expose textual partition details.
+- EAT uses the shared calculation with actual configured latencies; rounded p/q values are explicitly labeled approximate and the exact counts are shown.
+- Browser tests exercise rendered state for all five labs, including allocation remainder fidelity and FIFO/LRU telemetry.
+
+### Final implementation review resolutions
+
+- **Allocation remainder fidelity:** resolved. The 300 KB case now keeps 100 KB and 50 KB user partitions intact and adds a distinct 150 KB free remainder; regression tests verify allocation into it and reserved-final-partition behavior.
+- **Replacement browser metrics:** resolved. Browser assertions compare rendered hits, faults, and percentages against engine-derived results after stepping.
+- **Segmentation translator numeric safety:** resolved. Direct-call tests cover negative, fractional, NaN, positive/negative infinity, unsafe offsets, and valid start/end boundaries.
+- **EAT display precision:** resolved. Rounded p/q values and the arithmetic line use approximation notation; the exact shared calculation supplies the displayed result.
+- **Project status accuracy:** resolved in this document. The v0.8.0 QA record remains historical; the current work is unreleased, and the existing production site remains live.
+
 ### Remaining verification limits and release gates
 
 - Manual screen-reader testing and actual v0.8.0 PDF generation/inspection remain unverified.
-- The main bundle advisory remains; performance observations do not currently justify an optimization.
-- The v0.8.0 release is complete. Explicit approval is still required before Git writes for the deployment configuration and separately before enabling Pages or triggering a production deployment.
+- The current main bundle advisory remains; performance observations do not currently justify an optimization.
+- v0.9.0 is a release candidate until its commit, annotated tag, push, Actions jobs, and live deployment are verified. The v0.8.0 release and its historical QA record remain unchanged.

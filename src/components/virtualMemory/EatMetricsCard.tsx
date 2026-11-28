@@ -1,7 +1,7 @@
 import React from 'react';
 import { Calculator, Gauge, Clock, Zap, AlertTriangle } from 'lucide-react';
 import type { VirtualMemoryStats, VirtualMemoryConfig } from '../../core/virtualMemory/types';
-import { formatLatency } from '../../core/virtualMemory/eatCalculator';
+import { calculateEat, formatLatency } from '../../core/virtualMemory/eatCalculator';
 
 interface EatMetricsCardProps {
   stats: VirtualMemoryStats;
@@ -14,10 +14,19 @@ export const EatMetricsCard: React.FC<EatMetricsCardProps> = ({
   config,
   onUpdateLatency,
 }) => {
-  const p = stats.pageFaultRate / 100; // 0.0 to 1.0
+  const p = stats.totalAccesses > 0 ? stats.pageFaults / stats.totalAccesses : 0;
+  const q = stats.pageFaults > 0 ? stats.dirtyWritebacks / stats.pageFaults : 0;
   const ramTimeNs = config.memoryAccessTimeNs;
   const faultTimeNs = config.pageFaultServiceTimeNs;
+  const dirtyWritebackOverheadNs = config.dirtyWritebackOverheadNs;
   const faultTimeMs = Math.round(faultTimeNs / 1_000_000);
+  const eatCalculation = calculateEat(
+    p,
+    ramTimeNs,
+    faultTimeNs,
+    q,
+    dirtyWritebackOverheadNs
+  );
 
   // Slowdown factor
   const slowdownRatio = (stats.effectiveAccessTimeNs / Math.max(1, ramTimeNs)).toFixed(1);
@@ -60,19 +69,31 @@ export const EatMetricsCard: React.FC<EatMetricsCardProps> = ({
       </div>
 
       {/* Mathematical Formulation Breakdown */}
-      <div className="space-y-2 text-xs font-mono">
+      <div
+        data-testid="eat-explanation"
+        data-p={p}
+        data-q={q}
+        data-ram-time-ns={ramTimeNs}
+        data-fault-time-ns={faultTimeNs}
+        data-dirty-writeback-overhead-ns={dirtyWritebackOverheadNs}
+        data-eat-ns={eatCalculation.eatNs}
+        className="space-y-2 text-xs font-mono"
+      >
         <div className="text-[10px] uppercase font-bold text-[var(--color-text-subtle)]">
           Mathematical Formulation
         </div>
         <div className="p-2.5 rounded-lg bg-[var(--color-bg-surface-elevated)] border border-[var(--color-border-subtle)] space-y-1">
           <div className="text-[11px] font-semibold text-[var(--color-accent-primary)]">
-            EAT = (1 - p) * RAM_Time + p * Fault_Time
+            EAT = (1 - p) * RAM_Time + p * (Fault_Time + q * Dirty_Writeback_Overhead)
           </div>
           <div className="text-[10px] text-[var(--color-text-muted)]">
-            = (1 - {p.toFixed(3)}) * {ramTimeNs} ns + {p.toFixed(3)} * {faultTimeMs} ms
+            ≈ (1 - {p.toFixed(3)}) * {ramTimeNs} ns + {p.toFixed(3)} * ({faultTimeNs} ns + {q.toFixed(3)} * {dirtyWritebackOverheadNs} ns)
           </div>
           <div className="text-[10px] text-emerald-400 font-bold">
-            = {stats.effectiveAccessTimeNs.toLocaleString()} ns ({stats.eatFormatted})
+            = {eatCalculation.eatNs.toLocaleString()} ns ({eatCalculation.eatFormatted})
+          </div>
+          <div className="text-[10px] text-[var(--color-text-muted)]">
+            Rounded probabilities: p ≈ {p.toFixed(3)}, q ≈ {q.toFixed(3)}. Exact counts: p = {stats.pageFaults}/{stats.totalAccesses} faults; q = {stats.dirtyWritebacks}/{stats.pageFaults} dirty writebacks
           </div>
         </div>
       </div>
@@ -130,7 +151,7 @@ export const EatMetricsCard: React.FC<EatMetricsCardProps> = ({
       </div>
 
       <div className="text-[10px] text-[var(--color-text-subtle)] font-mono flex items-center justify-between pt-1">
-        <span>Dirty Page Overhead: +4 ms</span>
+        <span>Dirty Page Overhead: +{formatLatency(dirtyWritebackOverheadNs)}</span>
         <span>Pure Client Math</span>
       </div>
     </div>

@@ -55,9 +55,13 @@ export const PhysicalMemoryMap: React.FC<PhysicalMemoryMapProps> = ({
       {/* Graphical Memory Bar */}
       <div className="relative my-3">
         {/* Memory Bar */}
-        <div className="h-12 w-full rounded-xl overflow-hidden flex border border-[var(--color-border-medium)] bg-[var(--color-bg-base)]">
+        <div
+          role="img"
+          aria-label={`Physical memory map with ${memoryBlocks.length} blocks across ${ramSizeKb} KB RAM`}
+          className="h-12 w-full rounded-xl flex border border-[var(--color-border-medium)] bg-[var(--color-bg-base)]"
+        >
           {memoryBlocks.map((block, idx) => {
-            const widthPct = Math.max(1.5, (block.size / ramSizeBytes) * 100);
+            const widthPct = (block.size / ramSizeBytes) * 100;
             const isTargetBlock =
               activePhysAddress !== null &&
               activePhysAddress >= block.startAddress &&
@@ -67,7 +71,8 @@ export const PhysicalMemoryMap: React.FC<PhysicalMemoryMapProps> = ({
               <div
                 key={idx}
                 style={{
-                  width: `${widthPct}%`,
+                  flex: `0 0 ${widthPct}%`,
+                  minWidth: 0,
                   borderTop: block.isAllocated ? `3px solid ${block.color || 'var(--color-accent-primary)'}` : undefined,
                 }}
                 className={`relative h-full flex flex-col justify-center items-center text-[10px] font-mono transition-all border-r border-black/20 ${
@@ -132,6 +137,7 @@ export const PhysicalMemoryMap: React.FC<PhysicalMemoryMapProps> = ({
                 ? 'border-[var(--color-border-medium)] bg-[var(--color-bg-surface-elevated)]'
                 : 'border-dashed border-[var(--color-border-subtle)] bg-[var(--color-bg-base)]/40 text-[var(--color-text-subtle)]'
             }`}
+            aria-label={`${b.isAllocated ? b.segmentName : 'Free memory hole'}: ${b.size} bytes, addresses ${toHex(b.startAddress, 4)} through ${toHex(b.endAddress, 4)}`}
           >
             <div className="font-semibold truncate">
               {b.isAllocated ? b.segmentName : 'Free Memory Hole'}

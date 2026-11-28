@@ -12,7 +12,7 @@ import type { SegmentationConfig, Segment } from '../../core/segmentation/types'
 interface SegmentInputCardProps {
   config: SegmentationConfig;
   segments: Segment[];
-  onUpdateConfig: (newConfig: SegmentationConfig) => void;
+  onUpdateConfig: (newConfig: SegmentationConfig) => { success: boolean; error?: string };
   onTranslateSingle: (addressInput: string) => void;
   onUpdateStream: (streamText: string) => void;
   onAddSegment: (newSegment: Omit<Segment, 'accessCount'>) => { success: boolean; error?: string };
@@ -35,6 +35,7 @@ export const SegmentInputCard: React.FC<SegmentInputCardProps> = ({
   const [singleInput, setSingleInput] = useState('(0, 500)');
   const [streamInput, setStreamInput] = useState(currentStreamText);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [configError, setConfigError] = useState<string | null>(null);
 
   // Sync streamInput when external preset updates
   useEffect(() => {
@@ -64,14 +65,26 @@ export const SegmentInputCard: React.FC<SegmentInputCardProps> = ({
     onUpdateStream(streamInput);
   };
 
+  const handleConfigUpdate = (newConfig: SegmentationConfig) => {
+    const result = onUpdateConfig(newConfig);
+    setConfigError(result.success ? null : result.error ?? 'Memory configuration was rejected.');
+  };
+
   const handleCreateSegment = (e: React.FormEvent) => {
     e.preventDefault();
     setAddError(null);
-    const base = parseInt(newSegBase, 10);
-    const limit = parseInt(newSegLimit, 10);
+    const base = Number(newSegBase);
+    const limit = Number(newSegLimit);
 
-    if (isNaN(base) || isNaN(limit) || base < 0 || limit <= 0) {
-      setAddError('Please enter valid positive numbers for Base and Limit.');
+    if (
+      !newSegBase.trim() ||
+      !newSegLimit.trim() ||
+      !Number.isSafeInteger(base) ||
+      !Number.isSafeInteger(limit) ||
+      base < 0 ||
+      limit <= 0
+    ) {
+      setAddError('Base and Limit must be safe integers; Base must be non-negative and Limit positive.');
       return;
     }
 
@@ -158,8 +171,10 @@ export const SegmentInputCard: React.FC<SegmentInputCardProps> = ({
             <select
               id="segmentation-logical-space"
               value={config.logicalSpaceKb}
+              aria-invalid={configError ? true : undefined}
+              aria-describedby={configError ? 'segmentation-config-error' : undefined}
               onChange={(e) =>
-                onUpdateConfig({ ...config, logicalSpaceKb: Number(e.target.value) })
+                handleConfigUpdate({ ...config, logicalSpaceKb: Number(e.target.value) })
               }
               className="w-full px-2 py-1.5 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-xs focus:border-[var(--color-accent-primary)]"
             >
@@ -176,8 +191,10 @@ export const SegmentInputCard: React.FC<SegmentInputCardProps> = ({
             <select
               id="segmentation-physical-ram"
               value={config.ramSizeKb}
+              aria-invalid={configError ? true : undefined}
+              aria-describedby={configError ? 'segmentation-config-error' : undefined}
               onChange={(e) =>
-                onUpdateConfig({ ...config, ramSizeKb: Number(e.target.value) })
+                handleConfigUpdate({ ...config, ramSizeKb: Number(e.target.value) })
               }
               className="w-full px-2 py-1.5 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-xs focus:border-[var(--color-accent-primary)]"
             >
@@ -186,6 +203,12 @@ export const SegmentInputCard: React.FC<SegmentInputCardProps> = ({
             </select>
           </div>
         </div>
+        {configError && (
+          <div id="segmentation-config-error" role="alert" className="flex items-center gap-1.5 text-[11px] text-[var(--color-accent-danger)]">
+            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+            <span>{configError}</span>
+          </div>
+        )}
       </div>
 
       {/* Mode A: Single Address Translation */}

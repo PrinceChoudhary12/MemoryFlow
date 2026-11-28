@@ -1,4 +1,5 @@
 import type { PagingConfig, AddressSplitResult } from './types';
+import { parseStrictAddressInteger } from '../addressParsing';
 
 export interface PagingGeometry {
   pageSizeBytes: number;
@@ -63,24 +64,12 @@ export function parseAddress(input: string): { address: number | null; error?: s
     return { address: null, error: 'Address cannot be empty.' };
   }
 
-  let address: number;
-  if (trimmed.toLowerCase().startsWith('0x')) {
-    address = parseInt(trimmed, 16);
-  } else {
-    // Check if user entered hex without 0x prefix if it contains a-f
-    if (/^[0-9a-fA-F]+$/.test(trimmed) && /[a-fA-F]/.test(trimmed)) {
-      address = parseInt(trimmed, 16);
-    } else {
-      address = parseInt(trimmed, 10);
-    }
-  }
-
-  if (isNaN(address)) {
-    return { address: null, error: `Invalid number format: "${trimmed}".` };
-  }
-
-  if (address < 0) {
-    return { address: null, error: 'Address must be a positive integer.' };
+  const address = parseStrictAddressInteger(trimmed, true);
+  if (address === null) {
+    return {
+      address: null,
+      error: `Invalid address "${trimmed}". Use a non-negative safe integer or hexadecimal value.`,
+    };
   }
 
   return { address };
@@ -92,7 +81,14 @@ export function parseAddress(input: string): { address: number | null; error?: s
 export function splitAddress(virtualAddress: number, config: PagingConfig): AddressSplitResult {
   const geometry = calculateGeometry(config);
 
-  if (virtualAddress < 0 || virtualAddress > geometry.maxVirtualAddress) {
+  if (
+    !Number.isSafeInteger(virtualAddress) ||
+    virtualAddress < 0 ||
+    virtualAddress > geometry.maxVirtualAddress
+  ) {
+    const errorMessage = !Number.isSafeInteger(virtualAddress) || virtualAddress < 0
+      ? 'Address must be a non-negative safe integer.'
+      : `Address ${virtualAddress} (0x${virtualAddress.toString(16).toUpperCase()}) exceeds virtual address space (0 - ${geometry.maxVirtualAddress}).`;
     return {
       virtualAddress,
       pageNumber: 0,
@@ -103,7 +99,7 @@ export function splitAddress(virtualAddress: number, config: PagingConfig): Addr
       offsetHex: '0x0000',
       pageNumberHex: '0x0',
       isValid: false,
-      errorMessage: `Address ${virtualAddress} (0x${virtualAddress.toString(16).toUpperCase()}) exceeds virtual address space (0 - ${geometry.maxVirtualAddress}).`,
+      errorMessage,
     };
   }
 

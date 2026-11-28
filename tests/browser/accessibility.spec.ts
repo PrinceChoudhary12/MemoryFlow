@@ -63,7 +63,7 @@ test('validation feedback is associated with segmentation, replacement, and allo
   const segmentBase = page.getByLabel('Base Address');
   await segmentBase.fill('');
   await page.getByRole('button', { name: 'Add to Table' }).click();
-  await expect(page.getByRole('alert')).toContainText('valid positive numbers');
+  await expect(page.getByRole('alert')).toContainText('safe integers');
   await expect(segmentBase).toHaveAttribute('aria-invalid', 'true');
   await expect(segmentBase).toHaveAttribute('aria-describedby', 'segment-add-error');
 

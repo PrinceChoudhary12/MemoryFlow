@@ -26,6 +26,28 @@ describe('Segmentation Translator & Memory Map Functions', () => {
     expect(parseLogicalAddress('').error).toBeDefined();
   });
 
+  it('rejects partial, malformed, negative, decimal, and unsafe logical address values', () => {
+    for (const address of [
+      '(12.5, 1)',
+      '(12abc, 1)',
+      '(-1, 1)',
+      '(0, 12.5)',
+      '(0, 12abc)',
+      '(0, -1)',
+      '(0xGG, 1)',
+      '(0, 0xGG)',
+      '(9007199254740992, 1)',
+      '(0, 9007199254740992)',
+      '(Infinity, 1)',
+      '(NaN, 1)',
+      '(0,)',
+    ]) {
+      expect(parseLogicalAddress(address).segmentId, address).toBeNull();
+      expect(parseLogicalAddress(address).offset, address).toBeNull();
+      expect(parseLogicalAddress(address).error, address).toBeDefined();
+    }
+  });
+
   it('translates valid logical address correctly: Physical = Base + Offset', () => {
     // Segment 0: Base 2000, Limit 1000. Offset 450 -> Physical 2450
     const res = translateSegmentAddress(0, 450, sampleSegments, ramSizeBytes, 1, '(0, 450)');
@@ -34,6 +56,49 @@ describe('Segmentation Translator & Memory Map Functions', () => {
     expect(res.physicalAddressHex).toBe('0x0992');
     expect(res.base).toBe(2000);
     expect(res.limit).toBe(1000);
+  });
+
+  it('rejects invalid direct numeric offsets and accepts both valid boundaries', () => {
+    for (const offset of [
+      -1,
+      1.5,
+      Number.NaN,
+      Number.POSITIVE_INFINITY,
+      Number.NEGATIVE_INFINITY,
+      Number.MAX_SAFE_INTEGER + 1,
+    ]) {
+      const result = translateSegmentAddress(
+        0,
+        offset,
+        sampleSegments,
+        ramSizeBytes,
+        1,
+        String(offset)
+      );
+      expect(result.status, String(offset)).toBe('INVALID_INPUT');
+      expect(result.physicalAddress, String(offset)).toBeNull();
+    }
+
+    const atStart = translateSegmentAddress(0, 0, sampleSegments, ramSizeBytes, 1, '(0, 0)');
+    expect(atStart.status).toBe('VALID_TRANSLATION');
+    expect(atStart.physicalAddress).toBe(2000);
+
+    const lastValidOffset = translateSegmentAddress(0, 999, sampleSegments, ramSizeBytes, 1, '(0, 999)');
+    expect(lastValidOffset.status).toBe('VALID_TRANSLATION');
+    expect(lastValidOffset.physicalAddress).toBe(2999);
+
+    const firstInvalidOffset = translateSegmentAddress(0, 1000, sampleSegments, ramSizeBytes, 1, '(0, 1000)');
+    expect(firstInvalidOffset.status).toBe('FAULT_LIMIT_EXCEEDED');
+    expect(firstInvalidOffset.physicalAddress).toBeNull();
+  });
+
+  it('rejects invalid direct segment, RAM-size, and step-number arguments', () => {
+    expect(translateSegmentAddress(-1, 0, sampleSegments, ramSizeBytes, 1, 'input').status)
+      .toBe('INVALID_INPUT');
+    expect(translateSegmentAddress(0, 0, sampleSegments, 0, 1, 'input').status)
+      .toBe('INVALID_INPUT');
+    expect(translateSegmentAddress(0, 0, sampleSegments, ramSizeBytes, 0, 'input').status)
+      .toBe('INVALID_INPUT');
   });
 
   it('detects Segmentation Fault when Offset >= Limit (Memory Protection Trap)', () => {
@@ -89,6 +154,16 @@ describe('Segmentation Translator & Memory Map Functions', () => {
   it('formats hex addresses consistently', () => {
     expect(toHex(2000, 4)).toBe('0x07D0');
     expect(toHex(0, 4)).toBe('0x0000');
+  });
+
+  it('rejects maps that would extend beyond RAM or overlap active segments', () => {
+    expect(() => buildMemoryMap([
+      { id: 0, name: 'Outside', base: 9000, limit: 2000, isValid: true, accessCount: 0 },
+    ], 10000)).toThrow(/invalid or overlapping/);
+    expect(() => buildMemoryMap([
+      { id: 0, name: 'First', base: 100, limit: 200, isValid: true, accessCount: 0 },
+      { id: 1, name: 'Overlap', base: 250, limit: 100, isValid: true, accessCount: 0 },
+    ], 1000)).toThrow(/invalid or overlapping/);
   });
 
   it('parses reference streams containing pairs with internal commas cleanly', () => {

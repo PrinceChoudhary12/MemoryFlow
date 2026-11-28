@@ -100,9 +100,50 @@ export class SegmentationEngine {
     this.snapshots.push(this.captureSnapshot());
   }
 
-  public setConfig(newConfig: SegmentationConfig): void {
+  public setConfig(newConfig: SegmentationConfig): { success: boolean; error?: string } {
+    if (
+      !Number.isSafeInteger(newConfig.logicalSpaceKb) ||
+      newConfig.logicalSpaceKb <= 0 ||
+      !Number.isSafeInteger(newConfig.ramSizeKb) ||
+      newConfig.ramSizeKb <= 0 ||
+      !Number.isSafeInteger(newConfig.logicalSpaceKb * 1024) ||
+      !Number.isSafeInteger(newConfig.ramSizeKb * 1024)
+    ) {
+      return { success: false, error: 'Memory sizes must be positive safe integers.' };
+    }
+
+    const newRamSizeBytes = newConfig.ramSizeKb * 1024;
+    const activeSegments = this.segments
+      .filter((segment) => segment.isValid)
+      .sort((a, b) => a.base - b.base);
+    let previousEnd = 0;
+    for (const segment of activeSegments) {
+      const endExclusive = segment.base + segment.limit;
+      if (
+        !Number.isSafeInteger(segment.base) ||
+        !Number.isSafeInteger(segment.limit) ||
+        !Number.isSafeInteger(endExclusive) ||
+        segment.base < 0 ||
+        segment.limit <= 0 ||
+        segment.base < previousEnd
+      ) {
+        return {
+          success: false,
+          error: `Cannot apply RAM configuration: segment "${segment.name}" has an invalid or overlapping range.`,
+        };
+      }
+      if (endExclusive > newRamSizeBytes) {
+        return {
+          success: false,
+          error: `Cannot reduce RAM: segment "${segment.name}" would extend beyond the new ${newConfig.ramSizeKb} KB limit.`,
+        };
+      }
+      previousEnd = endExclusive;
+    }
+
     this.config = { ...newConfig };
     this.reset();
+    return { success: true };
   }
 
   public getConfig(): SegmentationConfig {
@@ -118,6 +159,13 @@ export class SegmentationEngine {
     excludeId?: number
   ): { isValid: boolean; error?: string } {
     const ramSizeBytes = this.config.ramSizeKb * 1024;
+    if (
+      !Number.isSafeInteger(candidate.base) ||
+      !Number.isSafeInteger(candidate.limit) ||
+      !Number.isSafeInteger(candidate.base + candidate.limit)
+    ) {
+      return { isValid: false, error: 'Base and limit must be safe integer byte values.' };
+    }
     if (candidate.base < 0) {
       return { isValid: false, error: 'Base address cannot be negative.' };
     }
