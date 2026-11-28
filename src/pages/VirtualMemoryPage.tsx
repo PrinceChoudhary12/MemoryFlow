@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { HardDrive, ArrowLeft } from 'lucide-react';
 import { VirtualMemoryEngine, DEFAULT_VM_CONFIG } from '../core/virtualMemory/virtualMemoryEngine';
-import { VirtualMemoryControls, VM_PRESETS } from '../components/virtualMemory/VirtualMemoryControls';
+import { VirtualMemoryControls } from '../components/virtualMemory/VirtualMemoryControls';
+import { VM_PRESETS } from '../components/virtualMemory/virtualMemoryPresets';
 import { VirtualMemoryInputCard } from '../components/virtualMemory/VirtualMemoryInputCard';
 import { VirtualMemoryViews } from '../components/virtualMemory/VirtualMemoryViews';
 import { DiskPlatterView } from '../components/virtualMemory/DiskPlatterView';

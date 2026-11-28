@@ -74,7 +74,7 @@ export const DiskPlatterView: React.FC<DiskPlatterViewProps> = ({
       </div>
 
       {/* Grid of Swap Blocks */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 flex-1 overflow-y-auto max-h-[220px]">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 flex-1 overflow-y-auto max-h-[220px]" role="region" aria-label="Swap disk blocks" tabIndex={0}>
         {swapDisk.map((block) => {
           const isTarget = activePage === block.pageNumber;
           const isVictim = victimPage === block.pageNumber;

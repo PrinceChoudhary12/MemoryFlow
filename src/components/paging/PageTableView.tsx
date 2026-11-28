@@ -26,7 +26,7 @@ export const PageTableView: React.FC<PageTableViewProps> = ({
       </div>
 
       {/* Table Container */}
-      <div className="flex-1 overflow-y-auto max-h-[360px] rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)]">
+      <div tabIndex={0} className="flex-1 overflow-y-auto max-h-[360px] rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)]">
         <table className="w-full text-left text-xs font-mono">
           <thead className="sticky top-0 bg-[var(--color-bg-surface-elevated)] border-b border-[var(--color-border-medium)] text-[10px] uppercase text-[var(--color-text-subtle)]">
             <tr>
@@ -67,7 +67,7 @@ export const PageTableView: React.FC<PageTableViewProps> = ({
                         Frame {entry.frameNumber}
                       </span>
                     ) : (
-                      <span className="text-[var(--color-text-subtle)] opacity-60">— (On Disk)</span>
+                      <span className="text-[var(--color-text-muted)]">— (On Disk)</span>
                     )}
                   </td>
                   <td className="py-1.5 px-3">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   Split, 
   Send, 
@@ -33,14 +33,15 @@ export const SegmentInputCard: React.FC<SegmentInputCardProps> = ({
   onToggleMode,
 }) => {
   const [singleInput, setSingleInput] = useState('(0, 500)');
-  const [streamInput, setStreamInput] = useState(currentStreamText);
+  const [streamDraft, setStreamDraft] = useState({
+    value: currentStreamText,
+    source: currentStreamText,
+  });
+  const streamInput = streamDraft.source === currentStreamText
+    ? streamDraft.value
+    : currentStreamText;
   const [validationError, setValidationError] = useState<string | null>(null);
   const [configError, setConfigError] = useState<string | null>(null);
-
-  // Sync streamInput when external preset updates
-  useEffect(() => {
-    setStreamInput(currentStreamText);
-  }, [currentStreamText]);
 
   // New Segment form states
   const [isAddingSegment, setIsAddingSegment] = useState(false);
@@ -264,7 +265,10 @@ export const SegmentInputCard: React.FC<SegmentInputCardProps> = ({
           <textarea
             id="segmentation-stream"
             value={streamInput}
-            onChange={(e) => setStreamInput(e.target.value)}
+            onChange={(e) => setStreamDraft({
+              value: e.target.value,
+              source: currentStreamText,
+            })}
             rows={3}
             placeholder="e.g. (0, 500), (0, 4096), (1, 200), (2, 2500)"
             className="w-full px-3 py-2 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-xs focus:border-[var(--color-accent-primary)]"

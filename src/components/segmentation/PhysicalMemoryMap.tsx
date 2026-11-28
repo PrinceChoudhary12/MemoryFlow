@@ -80,7 +80,7 @@ export const PhysicalMemoryMap: React.FC<PhysicalMemoryMapProps> = ({
                     ? isTargetBlock
                       ? 'bg-emerald-500/80 text-white font-bold animate-pulse'
                       : 'bg-[var(--color-bg-surface-elevated)] text-[var(--color-text-main)] hover:bg-[var(--color-bg-muted)]'
-                    : 'bg-[var(--color-bg-base)] text-[var(--color-text-subtle)] opacity-40 hover:opacity-75'
+                    : 'bg-[var(--color-bg-base)] text-[var(--color-text-muted)]'
                 }`}
                 title={
                   block.isAllocated
@@ -94,7 +94,7 @@ export const PhysicalMemoryMap: React.FC<PhysicalMemoryMapProps> = ({
                   </span>
                 )}
                 {widthPct > 12 && (
-                  <span className="text-[9px] text-[var(--color-text-subtle)]">
+                  <span className="text-[9px] text-[var(--color-text-muted)]">
                     {block.size} B
                   </span>
                 )}
@@ -142,7 +142,7 @@ export const PhysicalMemoryMap: React.FC<PhysicalMemoryMapProps> = ({
             <div className="font-semibold truncate">
               {b.isAllocated ? b.segmentName : 'Free Memory Hole'}
             </div>
-            <div className="text-[9px] text-[var(--color-text-subtle)] mt-0.5">
+            <div className="text-[9px] text-[var(--color-text-muted)] mt-0.5">
               {toHex(b.startAddress, 4)} - {toHex(b.endAddress, 4)}
             </div>
             <div className="text-[9px] text-[var(--color-accent-primary)] font-bold mt-0.5">

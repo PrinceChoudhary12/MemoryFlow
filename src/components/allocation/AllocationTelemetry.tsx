@@ -51,17 +51,16 @@ export const AllocationTelemetry: React.FC<AllocationTelemetryProps> = ({
                   key={idx}
                   type="button"
                   aria-current={isCurrent ? 'step' : undefined}
-                  aria-label={`Operation ${idx + 1}: ${isAlloc ? `allocate ${op.processId}, ${op.size} KB` : `deallocate ${op.processId}`}`}
                   onClick={() => onSelectStep(idx)}
                   className={`px-3 py-1.5 rounded-xl border text-left font-mono text-xs transition-all ${
                     isCurrent
                       ? 'bg-[var(--color-accent-danger)] text-[var(--color-accent-contrast)] border-[var(--color-accent-danger)] shadow-md font-bold'
                       : stepRecord
                       ? 'bg-[var(--color-bg-surface-elevated)] border-[var(--color-border-medium)] text-[var(--color-text-main)]'
-                      : 'bg-[var(--color-bg-muted)] border-dashed border-[var(--color-border-subtle)] text-[var(--color-text-subtle)] opacity-75'
+                      : 'bg-[var(--color-bg-muted)] border-dashed border-[var(--color-border-subtle)] text-[var(--color-text-muted)]'
                   }`}
                 >
-                  <div className="flex items-center justify-between gap-2 text-[10px] opacity-75">
+                  <div className="flex items-center justify-between gap-2 text-[10px]">
                     <span>#{idx + 1}</span>
                     {stepRecord && (
                       <span className="flex items-center gap-1">

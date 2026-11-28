@@ -127,8 +127,9 @@ test('mode, speed, and preset controls expose selected state', async ({ page }) 
 test('keyboard focus is visible and the theme popover restores focus on Escape', async ({ page }) => {
   await page.goto('/');
   await page.keyboard.press('Tab');
-  await expect(page.getByRole('button', { name: 'MemoryFlow home' })).toBeFocused();
-  const focusOutline = await page.getByRole('button', { name: 'MemoryFlow home' }).evaluate((button) => {
+  const firstHeaderButton = page.locator('header').getByRole('button').first();
+  await expect(firstHeaderButton).toBeFocused();
+  const focusOutline = await firstHeaderButton.evaluate((button) => {
     const style = getComputedStyle(button);
     return { style: style.outlineStyle, width: style.outlineWidth };
   });

@@ -168,6 +168,7 @@ export const PartitionMemoryMap: React.FC<PartitionMemoryMapProps> = ({
                     return (
                       <div
                         key={part.id}
+                        role="img"
                         style={{ flex: `0 0 ${pct}%`, minWidth: 0 }}
                         className="h-full bg-slate-500/20 border-r border-[var(--color-border-subtle)] flex flex-col items-center justify-center text-[9px] font-mono text-[var(--color-text-subtle)] select-none"
                         aria-label={`Reserved memory, ${part.size} KB, addresses ${part.startAddress} to ${part.startAddress + part.size - 1}`}
@@ -212,6 +213,7 @@ export const PartitionMemoryMap: React.FC<PartitionMemoryMapProps> = ({
                   return (
                     <div
                       key={part.id}
+                      role="img"
                       style={{ flex: `0 0 ${pct}%`, minWidth: 0 }}
                       className={`h-full border-r border-dashed border-[var(--color-border-medium)] flex flex-col items-center justify-center px-1 text-[10px] font-mono transition-all duration-300 ${
                         isCoalescedHighlight
@@ -226,7 +228,7 @@ export const PartitionMemoryMap: React.FC<PartitionMemoryMapProps> = ({
                         {part.size}K
                       </span>
                       {pct >= 6 && (
-                        <span className="text-[9px] opacity-70 truncate">Free</span>
+                        <span className="text-[9px] text-[var(--color-text-muted)] truncate">Free</span>
                       )}
                     </div>
                   );

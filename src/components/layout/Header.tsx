@@ -1,6 +1,13 @@
+
 import React, { useState, useRef, useEffect } from 'react';
-import { Cpu, Palette, Check, ExternalLink } from 'lucide-react';
-import { useTheme } from '../../context/ThemeContext';
+import {
+  Cpu,
+  Palette,
+  Check,
+  ExternalLink,
+  UserCircle,
+} from 'lucide-react';
+import { useTheme } from '../../context/useTheme';
 
 export type NavModule =
   | 'dashboard'
@@ -14,9 +21,15 @@ export type NavModule =
 interface HeaderProps {
   activeModule: NavModule;
   onSelectModule: (module: NavModule) => void;
+  onOpenProfile: () => void;
+  onSignOut: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ activeModule, onSelectModule }) => {
+export const Header: React.FC<HeaderProps> = ({
+  activeModule,
+  onSelectModule,
+  onOpenProfile,
+}) => {
   const { theme, setTheme, themeNames } = useTheme();
   const [themeMenuOpen, setThemeMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -34,7 +47,10 @@ export const Header: React.FC<HeaderProps> = ({ activeModule, onSelectModule }) 
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
         setThemeMenuOpen(false);
       }
     };
@@ -48,6 +64,7 @@ export const Header: React.FC<HeaderProps> = ({ activeModule, onSelectModule }) 
 
     document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('keydown', handleKeyDown);
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleKeyDown);
@@ -57,27 +74,29 @@ export const Header: React.FC<HeaderProps> = ({ activeModule, onSelectModule }) 
   return (
     <header className="sticky top-0 z-50 glass-panel border-b border-[var(--color-border-subtle)] bg-[var(--glass-bg)] px-4 lg:px-8 py-3 transition-colors">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
-        
+
         {/* Brand & Version Badge */}
         <button
           type="button"
           className="flex items-center gap-2 sm:gap-3 bg-transparent p-0 text-left"
-          aria-label="MemoryFlow home"
           onClick={() => onSelectModule('dashboard')}
         >
           <span className="relative flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-[var(--color-accent-primary)] to-[var(--color-accent-secondary)] text-white shadow-lg shadow-[var(--color-accent-glow)]">
             <Cpu className="w-4 h-4 sm:w-5 sm:h-5 text-white animate-pulse" />
             <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-[var(--color-accent-tertiary)] border-2 border-[var(--color-bg-base)]"></span>
           </span>
+
           <span className="block">
             <span className="flex items-center gap-2">
               <span className="font-extrabold text-base sm:text-lg tracking-tight text-[var(--color-text-main)]">
                 Memory<span className="text-[var(--color-accent-primary)]">Flow</span>
               </span>
+
               <span className="px-1.5 py-0.5 text-[10px] font-mono font-semibold rounded bg-[var(--color-bg-muted)] text-[var(--color-accent-primary)] border border-[var(--color-border-medium)]">
-                v0.8.0
+                v0.9.0
               </span>
             </span>
+
             <span className="hidden text-[11px] text-[var(--color-text-subtle)] sm:block">
               Dynamic Memory Management Visualizer
             </span>
@@ -85,9 +104,13 @@ export const Header: React.FC<HeaderProps> = ({ activeModule, onSelectModule }) 
         </button>
 
         {/* Studio Navigation Pills */}
-        <nav className="hidden min-w-0 flex-1 overflow-x-auto lg:flex items-center gap-1.5 p-1 rounded-xl bg-[var(--color-bg-surface-elevated)] border border-[var(--color-border-subtle)]" aria-label="Main Navigation">
+        <nav
+          className="hidden min-w-0 flex-1 overflow-x-auto lg:flex items-center gap-1.5 p-1 rounded-xl bg-[var(--color-bg-surface-elevated)] border border-[var(--color-border-subtle)]"
+          aria-label="Main Navigation"
+        >
           {navItems.map((item) => {
             const isActive = activeModule === item.id;
+
             return (
               <button
                 key={item.id}
@@ -103,18 +126,19 @@ export const Header: React.FC<HeaderProps> = ({ activeModule, onSelectModule }) 
                       }
                     : undefined
                 }
-                className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 ${
+                className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-medium transition-[transform,box-shadow] duration-150 ${
                   isActive
                     ? 'font-semibold'
                     : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] hover:bg-[var(--color-bg-muted)]'
                 }`}
               >
                 <span>{item.label}</span>
+
                 {item.badge && (
                   <span
                     className={`text-[9px] font-mono px-1 py-0.2 rounded ${
                       isActive
-                        ? 'bg-black/20 text-current'
+                        ? 'bg-[var(--color-bg-base)] text-[var(--color-text-main)]'
                         : 'bg-[var(--color-bg-base)] text-[var(--color-text-subtle)]'
                     }`}
                   >
@@ -126,9 +150,9 @@ export const Header: React.FC<HeaderProps> = ({ activeModule, onSelectModule }) 
           })}
         </nav>
 
-        {/* Right Action Utilities (Theme Selector & Application Link) */}
+        {/* Right Action Utilities */}
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
-          
+
           {/* Theme Dropdown */}
           <div className="relative" ref={dropdownRef}>
             <button
@@ -139,22 +163,24 @@ export const Header: React.FC<HeaderProps> = ({ activeModule, onSelectModule }) 
               title="Switch Visual Theme"
               aria-expanded={themeMenuOpen}
               aria-controls={themeMenuOpen ? 'theme-options' : undefined}
-              aria-label="Switch visual theme"
+              aria-label={`Switch visual theme: ${theme}`}
             >
               <Palette className="w-3.5 h-3.5 text-[var(--color-accent-primary)]" />
               <span className="hidden sm:inline capitalize">{theme}</span>
             </button>
 
             {themeMenuOpen && (
-              <div 
+              <div
                 id="theme-options"
                 className="absolute right-0 mt-2 w-56 rounded-xl glass-panel shadow-2xl p-1.5 z-50 animate-in fade-in zoom-in-95 duration-150"
               >
                 <div className="px-2 py-1.5 text-[10px] font-semibold text-[var(--color-text-subtle)] uppercase tracking-wider">
                   Visual Themes
                 </div>
+
                 {themeNames.map((t) => {
                   const isSelected = theme === t.id;
+
                   return (
                     <button
                       key={t.id}
@@ -176,6 +202,7 @@ export const Header: React.FC<HeaderProps> = ({ activeModule, onSelectModule }) 
                           className="w-3 h-3 rounded-full border border-white/20 shadow-sm"
                           style={{ backgroundColor: t.accentColor }}
                         />
+
                         <div>
                           <div className="text-xs leading-none">{t.label}</div>
                           <div className="text-[10px] text-[var(--color-text-subtle)] mt-0.5">
@@ -183,13 +210,28 @@ export const Header: React.FC<HeaderProps> = ({ activeModule, onSelectModule }) 
                           </div>
                         </div>
                       </div>
-                      {isSelected && <Check className="w-3.5 h-3.5 text-[var(--color-accent-primary)]" />}
+
+                      {isSelected && (
+                        <Check className="w-3.5 h-3.5 text-[var(--color-accent-primary)]" />
+                      )}
                     </button>
                   );
                 })}
               </div>
             )}
           </div>
+
+          {/* Single Profile Button */}
+          <button
+            type="button"
+            onClick={onOpenProfile}
+            className="flex items-center gap-1.5 px-2 py-1.5 sm:px-2.5 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-surface-elevated)] text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] hover:border-[var(--color-accent-primary)] transition text-xs font-medium"
+            title="View Profile"
+            aria-label="View Profile"
+          >
+            <UserCircle className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Profile</span>
+          </button>
 
           {/* Live Application Link */}
           <a
@@ -207,9 +249,13 @@ export const Header: React.FC<HeaderProps> = ({ activeModule, onSelectModule }) 
       </div>
 
       {/* Mobile Sub-Navigation Bar */}
-      <nav className="flex lg:hidden overflow-x-auto gap-1 pt-2 pb-1 no-scrollbar border-t border-[var(--color-border-subtle)] mt-2" aria-label="Mobile Navigation">
+      <nav
+        className="flex lg:hidden overflow-x-auto gap-1 pt-2 pb-1 no-scrollbar border-t border-[var(--color-border-subtle)] mt-2"
+        aria-label="Mobile Navigation"
+      >
         {navItems.map((item) => {
           const isActive = activeModule === item.id;
+
           return (
             <button
               key={item.id}

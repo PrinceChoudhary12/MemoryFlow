@@ -88,7 +88,6 @@ export const AllocationControls: React.FC<AllocationControlsProps> = ({
           <button
             type="button"
             onClick={onTogglePlay}
-            aria-label={isPlaying ? 'Pause simulation' : 'Play simulation'}
             disabled={!canStepForward && !isPlaying}
             className={`px-4 py-2 rounded-xl flex items-center gap-1.5 text-xs font-bold transition-all shadow-md ${
               isPlaying

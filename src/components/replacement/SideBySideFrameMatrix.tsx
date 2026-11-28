@@ -52,17 +52,16 @@ export const SideBySideFrameMatrix: React.FC<SideBySideFrameMatrixProps> = ({
                   key={index}
                   type="button"
                   aria-current={isCurrent ? 'step' : undefined}
-                  aria-label={`Step ${index + 1}, page ${page}${stepData ? `, FIFO ${stepData.fifo.status}, LRU ${stepData.lru.status}` : ', not yet processed'}`}
                   onClick={() => onSelectStep?.(index)}
                   className={`flex flex-col items-center justify-center p-2 rounded-xl min-w-[52px] border transition-all ${
                     isCurrent
                       ? 'bg-[var(--color-accent-warning)] text-[var(--color-accent-contrast)] border-[var(--color-accent-warning)] shadow-lg shadow-[var(--color-accent-warning)]/30 scale-105 font-bold z-10'
                       : isPast
                       ? 'bg-[var(--color-bg-surface-elevated)] border-[var(--color-border-subtle)] text-[var(--color-text-muted)] hover:border-[var(--color-border-medium)]'
-                      : 'bg-[var(--color-bg-muted)] border-dashed border-[var(--color-border-subtle)] text-[var(--color-text-subtle)] opacity-70'
+                      : 'bg-[var(--color-bg-muted)] border-dashed border-[var(--color-border-subtle)] text-[var(--color-text-muted)]'
                   }`}
                 >
-                  <span className="text-[10px] font-mono opacity-80">#{index + 1}</span>
+                  <span className="text-[10px] font-mono text-[var(--color-text-muted)]">#{index + 1}</span>
                   <span className="text-base font-mono font-extrabold my-0.5">{page}</span>
 
                   {/* Dual Mini Indicators */}
@@ -169,7 +168,7 @@ export const SideBySideFrameMatrix: React.FC<SideBySideFrameMatrixProps> = ({
                         ? 'border-rose-400 bg-rose-500/10 shadow-md shadow-rose-500/10'
                         : hasPage
                         ? 'border-[var(--color-border-medium)] bg-[var(--color-bg-surface-elevated)]'
-                        : 'border-dashed border-[var(--color-border-subtle)] bg-[var(--color-bg-muted)] opacity-60'
+                        : 'border-dashed border-[var(--color-border-subtle)] bg-[var(--color-bg-muted)]'
                     }`}
                   >
                     <div className="flex items-center justify-between text-[10px] text-[var(--color-text-subtle)] font-mono">
@@ -342,7 +341,7 @@ export const SideBySideFrameMatrix: React.FC<SideBySideFrameMatrixProps> = ({
                         ? 'border-rose-400 bg-rose-500/10 shadow-md shadow-rose-500/10'
                         : hasPage
                         ? 'border-[var(--color-border-medium)] bg-[var(--color-bg-surface-elevated)]'
-                        : 'border-dashed border-[var(--color-border-subtle)] bg-[var(--color-bg-muted)] opacity-60'
+                        : 'border-dashed border-[var(--color-border-subtle)] bg-[var(--color-bg-muted)]'
                     }`}
                   >
                     <div className="flex items-center justify-between text-[10px] text-[var(--color-text-subtle)] font-mono">

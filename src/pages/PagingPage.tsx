@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Layers, ArrowLeft } from 'lucide-react';
 import { PagingEngine, DEFAULT_PAGING_CONFIG } from '../core/paging/pagingEngine';
-import { PagingControls, PAGING_PRESETS } from '../components/paging/PagingControls';
+import { PagingControls } from '../components/paging/PagingControls';
+import { PAGING_PRESETS } from '../components/paging/pagingPresets';
 import { AddressInputCard } from '../components/paging/AddressInputCard';
 import { BitSplitter } from '../components/paging/BitSplitter';
 import { PageTableView } from '../components/paging/PageTableView';
@@ -18,14 +19,12 @@ interface PagingPageProps {
 
 export const PagingPage: React.FC<PagingPageProps> = ({ onBack }) => {
   const { captureSnapshot } = useAnalytics();
-  // Instantiate PagingEngine in ref to preserve across re-renders
-  const engineRef = useRef<PagingEngine | null>(null);
-  if (!engineRef.current) {
-    engineRef.current = new PagingEngine(DEFAULT_PAGING_CONFIG);
-    // Load default locality preset
-    engineRef.current.setReferenceStream(PAGING_PRESETS[0].stream);
-  }
-  const engine = engineRef.current;
+  // Create one stable engine instance with its default locality stream
+  const [engine] = useState(() => {
+    const instance = new PagingEngine(DEFAULT_PAGING_CONFIG);
+    instance.setReferenceStream(PAGING_PRESETS[0].stream);
+    return instance;
+  });
 
   // React state mirroring engine for UI re-rendering
   const [config, setConfig] = useState<PagingConfig>(() => engine.getConfig());

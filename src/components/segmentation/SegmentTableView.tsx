@@ -208,10 +208,10 @@ export const SegmentTableView: React.FC<SegmentTableViewProps> = ({
                     {seg.name}
                   </td>
                   <td className="py-2 px-3 text-[var(--color-accent-primary)] font-semibold">
-                    {toHex(seg.base, 4)} <span className="text-[10px] opacity-75">({seg.base})</span>
+                    {toHex(seg.base, 4)} <span className="text-[10px] text-[var(--color-text-muted)]">({seg.base})</span>
                   </td>
                   <td className="py-2 px-3 text-[var(--color-accent-secondary)] font-semibold">
-                    {toHex(seg.limit, 4)} <span className="text-[10px] opacity-75">({seg.limit} B)</span>
+                    {toHex(seg.limit, 4)} <span className="text-[10px] text-[var(--color-text-muted)]">({seg.limit} B)</span>
                   </td>
                   <td className="py-2 px-3">
                     <div className="flex items-center gap-1.5">

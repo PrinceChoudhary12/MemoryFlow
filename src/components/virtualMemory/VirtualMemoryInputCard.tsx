@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { HardDrive, Send, AlertCircle, Database, SlidersHorizontal, Edit3, BookOpen } from 'lucide-react';
 import type { VirtualMemoryConfig, AccessType } from '../../core/virtualMemory/types';
 
@@ -23,12 +23,14 @@ export const VirtualMemoryInputCard: React.FC<VirtualMemoryInputCardProps> = ({
 }) => {
   const [singleInput, setSingleInput] = useState('0x1000');
   const [accessType, setAccessType] = useState<AccessType>('READ');
-  const [streamInput, setStreamInput] = useState(currentStreamText);
+  const [streamDraft, setStreamDraft] = useState({
+    value: currentStreamText,
+    source: currentStreamText,
+  });
+  const streamInput = streamDraft.source === currentStreamText
+    ? streamDraft.value
+    : currentStreamText;
   const [validationError, setValidationError] = useState<string | null>(null);
-
-  useEffect(() => {
-    setStreamInput(currentStreamText);
-  }, [currentStreamText]);
 
   const handleSingleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -223,7 +225,10 @@ export const VirtualMemoryInputCard: React.FC<VirtualMemoryInputCardProps> = ({
           <textarea
             id="vm-stream"
             value={streamInput}
-            onChange={(e) => setStreamInput(e.target.value)}
+            onChange={(e) => setStreamDraft({
+              value: e.target.value,
+              source: currentStreamText,
+            })}
             rows={3}
             placeholder="e.g. 0x1000:R, 0x2000:W, 0x1050:R, 0x3000:W, 0x4000:R"
             className="w-full px-3 py-2 rounded-lg border border-[var(--color-border-medium)] bg-[var(--color-bg-base)] text-[var(--color-text-main)] font-mono text-xs focus:border-[var(--color-accent-primary)]"

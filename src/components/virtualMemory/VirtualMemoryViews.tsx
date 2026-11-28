@@ -37,7 +37,7 @@ export const VirtualMemoryViews: React.FC<VirtualMemoryViewsProps> = ({
           </span>
         </div>
 
-        <div className="overflow-y-auto max-h-[220px] rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)]">
+        <div className="overflow-y-auto max-h-[220px] rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)]" role="region" aria-label="Extended virtual page table" tabIndex={0}>
           <table className="w-full text-left text-xs font-mono">
             <thead className="sticky top-0 bg-[var(--color-bg-surface-elevated)] border-b border-[var(--color-border-medium)] text-[10px] uppercase text-[var(--color-text-subtle)]">
               <tr>

@@ -56,7 +56,7 @@ export const FrameGrid: React.FC<FrameGridProps> = ({
                     : 'border-[var(--color-accent-primary)] bg-[var(--color-accent-glow)]'
                   : frame.isOccupied
                   ? 'border-[var(--color-border-medium)] bg-[var(--color-bg-surface-elevated)] hover:border-[var(--color-border-accent)]'
-                  : 'border-dashed border-[var(--color-border-medium)] bg-[var(--color-bg-base)]/50 opacity-70'
+                  : 'border-dashed border-[var(--color-border-medium)] bg-[var(--color-bg-base)]/50'
               }`}
             >
               {/* Top Frame Tag */}
