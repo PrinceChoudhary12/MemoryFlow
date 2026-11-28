@@ -1,11 +1,11 @@
 # MemoryFlow — Master Project Status & Tracking
 
 **Repository:** [PrinceChoudhary12/MemoryFlow](https://github.com/PrinceChoudhary12/MemoryFlow)  
-**Latest Released Version:** `v0.7.0`
-**Current Development Milestone:** `v0.8.0` — Accessibility, Responsive Design & UI Reliability (`IMPLEMENTATION COMPLETE — RELEASE APPROVAL PENDING`)
+**Latest Released Version:** `v0.8.0`
+**Current Development Milestone:** `v0.8.0` — GitHub Pages deployment (`CONFIGURATION PREPARED — NOT YET COMMITTED OR DEPLOYED`)
 **Current Branch:** `main`  
-**Latest Release Commit:** Commit targeted by annotated `v0.7.0` tag
-**Latest Release Tag:** Annotated `v0.7.0`
+**Latest Release Commit:** `99d8b7a1ca395c6de9f2e47fe2c9eb45e066ef02`
+**Latest Release Tag:** Annotated `v0.8.0`
 **Target Release:** `v1.0.0 Production Release`  
 **Last Updated:** November 2026
 
@@ -13,7 +13,7 @@
 
 ## 1. Milestone Tracking
 
-All milestones through v0.7.0 are released. `COMPLETED / RELEASED` means a milestone has shipped. `VERIFIED / RELEASE APPROVAL PENDING` means implementation, automated checks, and release QA are complete, but the release commit, tag, and push await explicit owner approval. `PENDING` and `PENDING — PLAN ONLY` describe work not started; plan-only work has no implementation.
+All milestones through v0.8.0 are released. `COMPLETED / RELEASED` means a milestone has shipped. `PENDING` and `PENDING — PLAN ONLY` describe work not started; plan-only work has no implementation.
 
 | Milestone | Title | Status | Release Tag | Scope / Verification |
 | :--- | :--- | :---: | :---: | :--- |
@@ -24,7 +24,7 @@ All milestones through v0.7.0 are released. `COMPLETED / RELEASED` means a miles
 | **v0.5.0** | FIFO & LRU Page Replacement Studio | `COMPLETED / RELEASED` | `v0.5.0` | Algorithmic comparison, Belady's anomaly, hit/fault ribbons |
 | **v0.6.0** | Dynamic Memory Allocation Studio | `COMPLETED / RELEASED` | `v0.6.0` | First/Best/Worst Fit, hole coalescing, partition splitting; release commit `b4f1ba2` |
 | **v0.7.0** | Analytics, Benchmark & Export | `COMPLETED / RELEASED` | `v0.7.0` | Engine-backed analytics, deterministic benchmarks, Recharts, JSON/CSV, print-ready reports; final headless PDF QA verified all five reports, 23 SVG marks, and 42 history events |
-| **v0.8.0** | Accessibility, Responsive Design & UI Reliability | `VERIFIED / RELEASE APPROVAL PENDING` | Not created | Labeled and validated forms, keyboard states/focus, simulation announcements, theme contrast checks, 7-view responsive matrix, and grayscale print-media verification |
+| **v0.8.0** | Accessibility, Responsive Design & UI Reliability | `COMPLETED / RELEASED` | `v0.8.0` | Labeled and validated forms, keyboard states/focus, simulation announcements, theme contrast checks, 7-view responsive matrix, and grayscale print-media verification; release commit `99d8b7a` |
 | **v0.9.0** | Complete Quality Assurance | `PENDING` | `v0.9.0` | Planned: comprehensive tests, coverage assessment, lint cleanup |
 | **v1.0.0** | Production Deployment | `PENDING` | `v1.0.0` | Planned: static hosting, deployment verification, final release audit |
 
@@ -88,9 +88,9 @@ All milestones through v0.7.0 are released. `COMPLETED / RELEASED` means a miles
 
 ## 3. Current Development & Upcoming Milestones
 
-- **Latest released:** `v0.7.0`, tagged on `main`; release commit `68a5750998b1f9194b512bfddde0a964613eb196`.
-- **Current milestone:** v0.8.0 implementation and automated verification are complete. Release commit, tag, and push remain gated on explicit owner approval.
-- **Upcoming:** v0.9.0 quality assurance and v1.0.0 production deployment remain planned. No deployment provider has been selected and no deployment was performed.
+- **Latest released:** `v0.8.0`, tagged on `main`; release commit `99d8b7a1ca395c6de9f2e47fe2c9eb45e066ef02`.
+- **Current milestone:** GitHub Pages deployment configuration for released v0.8.0 is prepared in the worktree. The changes are not committed; Pages is not enabled and no workflow run or deployment has occurred.
+- **Upcoming:** v0.9.0 quality assurance and v1.0.0 production deployment remain planned. GitHub Pages is the selected provider for the v0.8.0 deployment.
 
 ---
 
@@ -102,11 +102,12 @@ All milestones through v0.7.0 are released. `COMPLETED / RELEASED` means a miles
 - **Analytics print-media verification:** Chromium print emulation rendered all five reports, 23 outlined SVG tracks, 16 non-zero outlined bars, normalized metric tables, configurations, workloads, and 42 history events. Charts use grayscale print styling. This was print-media emulation; a new PDF was not generated for v0.8.0 and native print-dialog behavior was not tested.
 - **Performance sample:** one local headless Chromium run measured `DOMContentLoaded` at 291.5 ms, `load` at 292.3 ms, and Analytics readiness at 421.5 ms after navigation. These are environment-specific observations, not performance targets; no optimization was made without a comparable baseline or user-facing performance issue.
 - **TypeScript and production build (`npm run build`):** passed. Vite reports a 505.70 kB main JavaScript chunk (127.98 kB gzip) above its 500 kB advisory threshold; Analytics is 381.53 kB (109.83 kB gzip), and the snapshot chunk is 2.63 kB (0.98 kB gzip). This advisory is recorded for follow-up, not a build failure.
+- **GitHub Pages base-path verification:** both the default root-based build and `npm run build -- --mode github-pages` passed. The Pages build emitted `/MemoryFlow/`-prefixed script, CSS, and favicon paths. A local production preview at `/MemoryFlow/` loaded successfully, and all seven navigation views were selected without local asset errors. This verifies the build locally only; Pages has not been enabled and no deployment was performed.
 - **Lint (`npm run lint`):** 0 errors and 22 warnings, matching the established 22-warning baseline.
 - **Git checks:** `git diff --check` passed. No simulation-core files were changed; the existing engine and Analytics export/print tests passed.
 - **Screen-reader limitation:** no manual screen-reader audit was performed. Automated assertions cover accessible names, landmarks, labels, states, and live regions, but do not establish actual assistive-technology behavior.
 - **Historical v0.7.0 PDF QA:** headless Chrome CDP produced and inspected the nine-page PDF; five reports, 23 SVG marks, and 42 events were verified. This is v0.7.0 evidence, not a newly generated v0.8.0 PDF.
-- **Release/deployment operations:** no Git stage, commit, tag, push, or deployment was performed. Release operations remain behind explicit owner approval.
+- **Release/deployment operations:** the v0.8.0 release commit, annotated tag, and push are complete. GitHub Pages configuration changes are currently uncommitted; Pages has not been enabled and no workflow run or deployment has occurred. Git writes and production deployment require separate explicit approval.
 
 ## 5. v0.8.0 Implementation Summary
 
@@ -123,4 +124,4 @@ All milestones through v0.7.0 are released. `COMPLETED / RELEASED` means a miles
 
 - Manual screen-reader testing and actual v0.8.0 PDF generation/inspection remain unverified.
 - The main bundle advisory remains; performance observations do not currently justify an optimization.
-- The owner must explicitly approve any release Git writes. Deployment additionally requires a provider decision and separate approval.
+- The v0.8.0 release is complete. Explicit approval is still required before Git writes for the deployment configuration and separately before enabling Pages or triggering a production deployment.

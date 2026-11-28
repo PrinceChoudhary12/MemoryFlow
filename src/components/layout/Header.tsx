@@ -75,7 +75,7 @@ export const Header: React.FC<HeaderProps> = ({ activeModule, onSelectModule }) 
                 Memory<span className="text-[var(--color-accent-primary)]">Flow</span>
               </span>
               <span className="px-1.5 py-0.5 text-[10px] font-mono font-semibold rounded bg-[var(--color-bg-muted)] text-[var(--color-accent-primary)] border border-[var(--color-border-medium)]">
-                v0.7.0
+                v0.8.0
               </span>
             </span>
             <span className="hidden text-[11px] text-[var(--color-text-subtle)] sm:block">
